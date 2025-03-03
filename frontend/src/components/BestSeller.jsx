@@ -3,26 +3,26 @@ import { ShopContext } from '../context/ShopContext'
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 
-const bestSeller = () => {
+const BestSeller = () => {
   const { products } = useContext(ShopContext);
-  const [bestSeller, setbestSeller] = useState([]);
+  const [BestSeller, setBestSeller] = useState([]);
 
   useEffect(() => {
     console.log("Products:", products);
 
     if (Array.isArray(products) && products.length > 0) {
       const sortedProducts = [...products].sort((a, b) => {
-        if (a.bestSeller && !b.bestSeller) return -1;
-        if (!a.bestSeller && b.bestSeller) return 1;
+        if (a.BestSeller && !b.BestSeller) return -1;
+        if (!a.BestSeller && b.BestSeller) return 1;
         return 0;
       });
 
       console.log("Sorted Products:", sortedProducts);
-      const topbestSellers = sortedProducts.slice(0, 5);
-      setbestSeller(topbestSellers);
+      const topBestSellers = sortedProducts.slice(0, 5);
+      setBestSeller(topBestSellers);
     } else {
       console.log("No products available or invalid data");
-      setbestSeller([]); 
+      setBestSeller([]); 
     }
   }, [products]);
    
@@ -40,7 +40,7 @@ const bestSeller = () => {
 
       <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 gap-y-6'>
                 {
-                    bestSeller.map((item,index)=>(
+                    BestSeller.map((item,index)=>(
                         <ProductItem key={index} id={item._id} image={item.image} name={item.name} price={item.price}/>
                     ))
                 }
@@ -49,4 +49,4 @@ const bestSeller = () => {
   );
 };
 
-export default bestSeller;
+export default BestSeller;

@@ -17,7 +17,7 @@ const Add = ({token}) => {
   const [price,setPrice]=useState("");
   const [category,setCategory]=useState("Men");
   const [subCategory,setSubCategory]=useState("Topwear");
-  const [bestSeller,setBestSeller]=useState(false);
+  const [BestSeller,setBestSeller]=useState(false);
   const [sizes,setSizes]=useState([]);
  
 
@@ -33,7 +33,7 @@ const Add = ({token}) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
-      formData.append("bestSeller", bestSeller);
+      formData.append("BestSeller", BestSeller);
       formData.append("sizes", JSON.stringify(sizes));
 
 
@@ -149,8 +149,8 @@ const Add = ({token}) => {
 
 
       <div className='flex gap-2 mt-2'>
-        <input onChange={()=>setBestSeller(prev=> !prev)} checked={bestSeller} type='checkbox' id='bestSeller'/>
-        <label className='cursor-pointer' htmlFor="bestSeller">Add to bestSeller</label>
+        <input onChange={()=>setBestSeller(prev=> !prev)} checked={BestSeller} type='checkbox' id='BestSeller'/>
+        <label className='cursor-pointer' htmlFor="BestSeller">Add to BestSeller</label>
       </div>
 
       <button type="submit" className='w-28 py-3 mt-4 bg-black text-white' >Add</button>

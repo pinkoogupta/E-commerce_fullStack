@@ -31,7 +31,7 @@ const productSchema = new mongoose.Schema(
       type: Array,
       required: [true, "Product category is required"],
     },
-    bestSeller: {
+    BestSeller: {
       type: Boolean
     },
     date:{

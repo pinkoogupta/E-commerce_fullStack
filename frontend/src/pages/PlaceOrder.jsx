@@ -43,9 +43,9 @@ const PlaceOrder = () => {
           }
         }
       }
-      console.log("Order Items:", orderItems);
+      // console.log("Order Items:", orderItems);
     } catch (error) {
-      console.error("Error placing order:", error);
+      // console.error("Error placing order:", error);
     }
   };
 

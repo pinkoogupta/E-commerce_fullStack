@@ -1,14 +1,14 @@
 // index.js
 import express from "express";
 import dotenv from "dotenv";
-import connectDB from "./db/db.js";
-import userRoutes from "./routes/user.route.js";
+import connectDB from "./src/db/db.js";
+import userRoutes from "./src/routes/user.route.js";
 import cors from "cors";
 import cookiesParser from "cookie-parser";
-import productRoutes from "./routes/product.route.js";
-import cartRouter from "./routes/cart.route.js";
-import orderRouter from "./routes/order.route.js";
-import connectCloudinary from "./utils/cloudinary.js";
+import productRoutes from "./src/routes/product.route.js";
+import cartRouter from "./src/routes/cart.route.js";
+import orderRouter from "./src/routes/order.route.js";
+import connectCloudinary from "./src/utils/cloudinary.js";
 
 dotenv.config();
 

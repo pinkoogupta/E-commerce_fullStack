@@ -23,6 +23,16 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookiesParser());
 
+
+app.use('/api/v1/user', userRoutes);
+  app.use('/api/v1/product',productRoutes);
+  app.use('/api/v1/cart',cartRouter);
+  app.use('/api/v1/order',cartRouter);
+
+app.get('/',(req,res)=>{
+  res.send("APIs are working");
+})
+
 connectDB()
   .then(() => {
     
@@ -41,7 +51,4 @@ connectDB()
   connectCloudinary();
 
   
-  app.use('/api/v1/user', userRoutes);
-  app.use('/api/v1/product',productRoutes);
-  app.use('/api/v1/cart',cartRouter);
-  app.use('/api/v1/order',cartRouter);
+  

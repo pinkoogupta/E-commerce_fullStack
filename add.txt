@@ -1,0 +1,14 @@
+1.admin get product by category
+2.cloudinary to image uploads
+3.verification through (Email, integration) 
+4.frontend -routes,navbar
+
+
+
+
+1.user Panel with react is completed-vite,tailwind
+2.all APIs are completed-tested via postman
+
+
+
+https://github.com/GreatStackDev/notes/blob/main/Vercel_JSON_Config_For_MERN.md

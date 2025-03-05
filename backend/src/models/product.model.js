@@ -16,26 +16,33 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product price is required"],
     },
     image: {
-        type: Array, 
-        required: true
-      },
+      type: Array, 
+      required: true,
+    },
     category: {
       type: String,
       required: [true, "Product category is required"],
     },
-   subCategory: {
+    subCategory: {
       type: String,
-      required: [true, "Product category is required"],
+      required: [true, "Product subcategory is required"],
     },
     sizes: {
-      type: Array,
-      required: [true, "Product category is required"],
+      type: [String], // List of available sizes (e.g., ["S", "M", "L", "XL"])
+      required: [true, "Product sizes are required"],
+    },
+    stock: {
+      type: Map, // Store stock count per size
+      of: Number,
+      required: true,
+      default: {},
     },
     BestSeller: {
-      type: Boolean
+      type: Boolean,
+      default: false,
     },
-    date:{
-      type:Number
+    date: {
+      type: Number,
     }
   },
   {

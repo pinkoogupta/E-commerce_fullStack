@@ -12,8 +12,9 @@ import bcrypt from "bcrypt";
 
 const addProduct = async (req, res) => {
   try {
-    const { name, description, price, category, subCategory, sizes, BestSeller } = req.body;
+    const { name, description, price, category, subCategory, sizes, BestSeller, stock } = req.body;
 
+    // Extract images from request
     const image1 = req.files?.image1?.[0];
     const image2 = req.files?.image2?.[0];
     const image3 = req.files?.image3?.[0];
@@ -28,50 +29,77 @@ const addProduct = async (req, res) => {
       })
     );
 
-   
+    // Convert sizes and stock to proper format
+    const parsedSizes = JSON.parse(sizes); // Ensure sizes is an array
+    const parsedStock = JSON.parse(stock); // Ensure stock is an object
 
-    console.log({ name, description, price, category, subCategory, sizes, BestSeller });
+    // Validate stock object (ensuring it has valid size keys)
+    let stockMap = {};
+    parsedSizes.forEach(size => {
+      stockMap[size] = parsedStock[size] ? Number(parsedStock[size]) : 0; // Default 0 if not provided
+    });
+
+    console.log({ name, description, price, category, subCategory, parsedSizes, BestSeller, stockMap });
     console.log(imageUrl);
+
     const product = new Product({
-      name, 
-      description, 
-      price:Number(price), 
+      name,
+      description,
+      price: Number(price),
       category,
-       subCategory,
-       sizes:JSON.parse(sizes),
-       BestSeller:BestSeller==="true"?true:false,
-       image:imageUrl,
-       date:Date.now()
+      subCategory,
+      sizes: parsedSizes,
+      BestSeller: BestSeller === "true" ? true:false,
+      image: imageUrl,
+      stock: stockMap,
+      date: Date.now(),
     });
 
     await product.save();
-    res.status(201).json({success:true, message: "Product added successfully", product });
+    res.status(201).json({ success: true, message: "Product added successfully", product });
 
   } catch (error) {
     console.error("Error adding product:", error);
-    res.status(500).json({ success:true,message: "Error adding product", error: error.message });
+    res.status(500).json({ success: false, message: "Error adding product", error: error.message });
   }
 };
+
 
 
 const updateProduct = async (req, res) => {
   try {
-    const { productId } = req.params;
-    const updateData = req.body;
+    console.log("Incoming Data:", req.body); // Debugging log
 
-    if (req.file) {
-      const cloudinaryResponse = await cloudinary(req.file.path);
-      if (cloudinaryResponse) {
-        updateData.image = cloudinaryResponse.secure_url;
-      }
+    const { productId, price, stock } = req.body;
+
+    if (!productId) {
+      return res.status(400).json({ success: false, message: "Product ID is required" });
     }
-    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true, runValidators: true });
-    if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
-    res.status(200).json({success:true, message: "Product updated successfully", updatedProduct });
+
+    let product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Ensure stock is correctly parsed
+    const parsedStock = stock ? JSON.parse(JSON.stringify(stock)) : product.stock;
+    console.log("Parsed Stock:", parsedStock); // Debugging log
+
+    // Update only price and stock
+    product.price = price !== undefined ? Number(price) : product.price;
+    product.stock = parsedStock || product.stock;
+    product.date = Date.now();
+
+    await product.save();
+    res.status(200).json({ success: true, message: "Product updated successfully", product });
+
   } catch (error) {
-    res.status(500).json({success:false, message: "Error updating product", error });
+    console.error("Error updating product:", error);
+    res.status(500).json({ success: false, message: "Error updating product", error: error.message });
   }
 };
+
+
 
 const removeProduct = async (req, res) => {
     try {

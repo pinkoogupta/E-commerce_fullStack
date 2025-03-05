@@ -18,7 +18,7 @@ productRoutes.post("/addProduct",AdminVerifyJWT,upload.fields([
     {name:'image3',maxCount:3},
     {name:'image4',maxCount:4}]), addProduct); 
 
-// productRoutes.post("/single",singleProduct);
+productRoutes.patch("/updateProduct",AdminVerifyJWT,updateProduct);
 productRoutes.post("/remove",AdminVerifyJWT, removeProduct); 
 productRoutes.get("/list",listProducts);
 productRoutes.get("/singleProduct",AdminVerifyJWT,singleProduct);

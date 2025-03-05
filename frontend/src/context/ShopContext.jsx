@@ -12,7 +12,7 @@ const ShopContextProvider =({children})=>{
 
     const[search,setSearch]=useState('');
     const[showSearch,setShowSearch]=useState(false);
-    const [cartItem,setCartItems]=useState({});
+    const [cartItems,setcartItems]=useState({});
     const [products,setProducts]=useState([]);
     const [token,setToken]=useState('');
 
@@ -26,7 +26,7 @@ const ShopContextProvider =({children})=>{
             return;
         }
 
-        let cartData=structuredClone(cartItem)
+        let cartData=structuredClone(cartItems)
         if(cartData[itemId]){
             if(cartData[itemId][size]){
                 cartData[itemId][size]+=1
@@ -39,7 +39,7 @@ const ShopContextProvider =({children})=>{
             cartData[itemId]={};
             cartData[itemId][size]=1
         }
-        setCartItems(cartData);
+        setcartItems(cartData);
 
         if(token)
         {
@@ -60,11 +60,11 @@ const ShopContextProvider =({children})=>{
     
 const getCartCount=()=>{
     let totalCount = 0
-    for(const items in cartItem){
-        for(const item in cartItem[items]){
+    for(const items in cartItems){
+        for(const item in cartItems[items]){
             try {
-                if(cartItem[items][item]>0){
-                    totalCount+=cartItem[items][item]
+                if(cartItems[items][item]>0){
+                    totalCount+=cartItems[items][item]
                 }
             } catch (error) {
                 console.log(error);
@@ -76,9 +76,9 @@ const getCartCount=()=>{
 }
 
 const updateQuantity =async(itemId,size,quantity)=>{
-    let cartData=structuredClone(cartItem)
+    let cartData=structuredClone(cartItems)
     cartData[itemId][size]=quantity
-    setCartItems(cartData)
+    setcartItems(cartData)
 
     if(token)
     {
@@ -98,12 +98,12 @@ const updateQuantity =async(itemId,size,quantity)=>{
 }
 const getCartAmount =()=>{
     let totalAmount=0
-    for(const items in cartItem){
+    for(const items in cartItems){
         let itemInfo=products.find((product)=> product._id===items);
-        for(const item in cartItem[items]){
+        for(const item in cartItems[items]){
             try {
-                if(cartItem[items][item]>0){
-                    totalAmount+=itemInfo.price*cartItem[items][item];
+                if(cartItems[items][item]>0){
+                    totalAmount+=itemInfo.price*cartItems[items][item];
                 }
             } catch (error) {
                 console.log(error);
@@ -136,7 +136,7 @@ const getUserCart=async(token)=>{
         const response=await axios.post(backendUrl+'/api/v1/cart/get',{},{headers:{token}});
         if(response.data.success)
         {
-            setCartItems(response.data.cartData);
+            setcartItems(response.data.cartData);
             toast.success(response.data.message);
         }
     } catch (error) {
@@ -151,7 +151,7 @@ const getUserCart=async(token)=>{
  },[]);
 
 
-//  console.log("cartItem",cartItem);
+//  console.log("cartItems",cartItems);
 //  console.log("getCartCount",getCartCount);
 //  console.log("getCartAmount",getCartAmount);
  
@@ -167,8 +167,8 @@ useEffect(()=>{
 const value={
         products,currency,deliveryFee,updateQuantity,
         getCartAmount,navigate,search,setSearch,
-        showSearch,setShowSearch,cartItem,addToCart,
-        getCartCount,backendUrl,setToken,token,setCartItems
+        showSearch,setShowSearch,cartItems,addToCart,
+        getCartCount,backendUrl,setToken,token,setcartItems
     }
     return (
         <ShopContext.Provider value={value}>

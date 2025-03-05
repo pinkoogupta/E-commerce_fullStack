@@ -3,10 +3,12 @@ import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import { assets } from "../assets/assets";
 import { ShopContext } from "../context/ShopContext";
+import { toast } from "react-toastify";
+import axios from 'axios';
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
-  const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, deliveryFee, products } = useContext(ShopContext);
+  const { navigate, backendUrl, token, cartItems, setcartItems, getCartAmount, deliveryFee, products } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -16,7 +18,7 @@ const PlaceOrder = () => {
     state: "",
     zipcode: "",
     country: "",
-    phone: "",
+    phone: ""
   });
 
   const onChangeHandler = (event) => {
@@ -43,9 +45,38 @@ const PlaceOrder = () => {
           }
         }
       }
+        
+      let orderData={
+        address:formData,
+        items:orderItems,
+        amount:getCartAmount() + deliveryFee
+      }
+
+      switch(method)
+      {
+          //api calls for COD
+          case "cod":
+
+          const response =await axios.post(backendUrl+ '/api/v1/order/place',orderData,{headers:{token}})
+        //  console.log(response.data.success);
+          if(response.data.success)
+          {
+            setcartItems({});
+            navigate('/orders')
+            toast.success(response.data.message);
+          }
+          else{
+            toast.error(response.data.message);
+          }
+            break;
+                 
+            default:
+              break;
+      }
       // console.log("Order Items:", orderItems);
     } catch (error) {
-      // console.error("Error placing order:", error);
+      console.error("Error placing order:", error);
+      toast.error(error.message);
     }
   };
 

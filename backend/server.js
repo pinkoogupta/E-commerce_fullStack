@@ -27,7 +27,7 @@ app.use(cookiesParser());
 app.use('/api/v1/user', userRoutes);
   app.use('/api/v1/product',productRoutes);
   app.use('/api/v1/cart',cartRouter);
-  app.use('/api/v1/order',cartRouter);
+  app.use('/api/v1/order',orderRouter);
 
 app.get('/',(req,res)=>{
   res.send("APIs are working");

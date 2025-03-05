@@ -12,3 +12,26 @@
 
 
 https://github.com/GreatStackDev/notes/blob/main/Vercel_JSON_Config_For_MERN.md
+
+
+00:00 Project Overview
+10:51 React Project Setup
+20:48 Create Pages and Routing
+31:21 Create Home Page components
+01:50:15 Create Collection Page
+02:46:21 Create Product page
+03:41:41 Cart and Place Order Page
+04:34:09 My Order and Login Page
+04:55:57 About and Contact Page
+05:10:15 Create Backend
+05:50:20 Create User Authentication feature
+06:22:20 Create Product upload feature
+07:08:44 Create authentication for Admin
+07:24:23 Create Admin dashboard
+08:01:55 Connect Backend APIs with Admin panel
+09:24:00 Connect Backend APIs with eCommerce Website
+10:32:55 Create Place Order feature
+11:37:02 Display order details in Admin panel
+12:10:59 Add Stripe payment gateway
+12:45:52 Add Razorpay payment gateway
+13:21:15 Deploy Full Stack project on Vercel

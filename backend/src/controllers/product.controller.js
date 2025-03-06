@@ -33,13 +33,16 @@ const addProduct = async (req, res) => {
     const parsedSizes = JSON.parse(sizes); // Ensure sizes is an array
     const parsedStock = JSON.parse(stock); // Ensure stock is an object
 
-    // Validate stock object (ensuring it has valid size keys)
+    // Validate stock object (ensuring it has valid size keys) and calculate totalStock
     let stockMap = {};
+    let totalStock = 0;
     parsedSizes.forEach(size => {
-      stockMap[size] = parsedStock[size] ? Number(parsedStock[size]) : 0; // Default 0 if not provided
+      const stockValue = parsedStock[size] ? Number(parsedStock[size]) : 0; // Default 0 if not provided
+      stockMap[size] = stockValue;
+      totalStock += stockValue;
     });
 
-    console.log({ name, description, price, category, subCategory, parsedSizes, BestSeller, stockMap });
+    console.log({ name, description, price, category, subCategory, parsedSizes, BestSeller, stockMap, totalStock });
     console.log(imageUrl);
 
     const product = new Product({
@@ -49,9 +52,10 @@ const addProduct = async (req, res) => {
       category,
       subCategory,
       sizes: parsedSizes,
-      BestSeller: BestSeller === "true" ? true:false,
+      BestSeller: BestSeller === "true" ? true : false,
       image: imageUrl,
       stock: stockMap,
+      totalStock, // Add total stock count
       date: Date.now(),
     });
 
@@ -63,7 +67,6 @@ const addProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Error adding product", error: error.message });
   }
 };
-
 
 
 const updateProduct = async (req, res) => {
@@ -85,9 +88,13 @@ const updateProduct = async (req, res) => {
     const parsedStock = stock ? JSON.parse(JSON.stringify(stock)) : product.stock;
     console.log("Parsed Stock:", parsedStock); // Debugging log
 
-    // Update only price and stock
+    // Calculate totalStock
+    let totalStock = Object.values(parsedStock).reduce((sum, value) => sum + Number(value), 0);
+
+    // Update price, stock, and totalStock
     product.price = price !== undefined ? Number(price) : product.price;
     product.stock = parsedStock || product.stock;
+    product.totalStock = totalStock;
     product.date = Date.now();
 
     await product.save();
@@ -98,7 +105,6 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Error updating product", error: error.message });
   }
 };
-
 
 
 const removeProduct = async (req, res) => {

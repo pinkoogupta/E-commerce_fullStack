@@ -32,4 +32,4 @@ const LatestCollection = () => {
   )
 }
 
-export default LatestCollection
+export default LatestCollection;

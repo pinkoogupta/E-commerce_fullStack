@@ -1,10 +1,10 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const userSchema = new Schema(
     {
-       name: {
+        name: {
             type: String,
             required: true
         },
@@ -13,13 +13,24 @@ const userSchema = new Schema(
             required: true,
             unique: true,
             lowercase: true,
-            trim: true, 
+            trim: true,
         },
         password: {
             type: String,
             required: [true, 'Password is required']
         },
-        cartData:{type:Object,default:{}}
+        cartData: {
+            type: Object,
+            default: {}
+        },
+        resetPasswordToken: {
+            type: String,
+            default: null
+        },
+        resetPasswordExpires: {
+            type: Date,
+            default: null
+        }
     },
     {
         minimize: false,
@@ -27,18 +38,21 @@ const userSchema = new Schema(
     }
 );
 
+// Hash password before saving
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
+    if (!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
 
-userSchema.methods.isPasswordCorrect = async function(password){
+// Method to check if password is correct
+userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateToken = function(){
+// Method to generate JWT token
+userSchema.methods.generateToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -46,9 +60,8 @@ userSchema.methods.generateToken = function(){
             name: this.name
         },
         process.env.JWT_SECRET,
-        
+        { expiresIn: "7d" } // Token valid for 7 days
     );
 };
-
 
 export const User = mongoose.model("User", userSchema);

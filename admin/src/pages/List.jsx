@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 const List = ({ token }) => {
   const [list, setList] = useState([]);
   const [editData, setEditData] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
 
   // Fetch product list
   const fetchList = async () => {
@@ -42,22 +44,38 @@ const List = ({ token }) => {
     }
   };
 
-  // Update product
-  const updateProduct = async (id) => {
-    try {
-      const updatedData = editData[id];
-      if (!updatedData) return toast.warning("No changes made!");
+  // Open modal for editing
+  const openEditModal = (product) => {
+    setCurrentProduct(product);
+    setEditData({ price: product.price, stock: { ...product.stock } });
+    setModalOpen(true);
+  };
 
+  // Handle form input change
+  const handleEditChange = (field, value) => {
+    setEditData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleStockChange = (size, value) => {
+    setEditData((prev) => ({
+      ...prev,
+      stock: { ...prev.stock, [size]: value },
+    }));
+  };
+
+  // Update product
+  const updateProduct = async () => {
+    try {
+      if (!currentProduct) return;
       const response = await axios.patch(
         `${backendUrl}/api/v1/product/updateProduct`,
-        { productId: id, ...updatedData },
+        { productId: currentProduct._id, ...editData },
         { headers: { token } }
       );
-
       if (response.data.success) {
         toast.success("Product updated successfully!");
         await fetchList();
-        setEditData((prev) => ({ ...prev, [id]: {} })); // Reset edited fields after update
+        setModalOpen(false);
       } else {
         toast.error(response.data.message);
       }
@@ -65,24 +83,6 @@ const List = ({ token }) => {
       console.error(error);
       toast.error("Failed to update product.");
     }
-  };
-
-  // Handle edit (preserve all stock sizes)
-  const handleEdit = (id, field, value) => {
-    setEditData((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [field]:
-          field === "stock"
-            ? {
-                ...list.find((p) => p._id === id)?.stock, // Preserve existing stock
-                ...prev[id]?.stock, // Preserve previously edited stock
-                ...value, // Update only the selected size
-              }
-            : value,
-      },
-    }));
   };
 
   useEffect(() => {
@@ -111,64 +111,55 @@ const List = ({ token }) => {
             key={index}
           >
             <img className="w-12" src={item.image[0]} alt="" />
-
-            {/* Non-Editable Product Name */}
             <p>{item.name}</p>
-
-            {/* Non-Editable Category */}
             <p>{item.category}</p>
+            <p>{item.price}</p>
+            <p>{Object.entries(item.stock || {}).map(([size, qty]) => `${size}: ${qty}`).join(", ")}</p>
+            <p onClick={() => removeProduct(item._id)} className="text-right md:text-center cursor-pointer text-lg">X</p>
+            <button onClick={() => openEditModal(item)} className="bg-blue-500 text-white px-2 py-1 text-xs rounded">
+              Update
+            </button>
+          </div>
+        ))}
+      </div>
 
-            {/* Editable Price */}
+      {/* Update Modal */}
+      {modalOpen && currentProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-bold mb-4">Update Product</h2>
+            <label>Price</label>
             <input
               type="number"
-              value={editData[item._id]?.price ?? item.price}
-              onChange={(e) =>
-                handleEdit(item._id, "price", Number(e.target.value))
-              }
-              className="border p-1 w-20"
+              value={editData.price}
+              onChange={(e) => handleEditChange("price", Number(e.target.value))}
+              className="border p-2 w-full mb-4"
             />
-
-            {/* Editable Stock */}
-            <div>
-              {Object.entries(item.stock || {}).map(([size, qty]) => (
-                <div
-                  key={size}
-                  className="flex justify-between items-center w-32"
-                >
-                  <span className="w-8">{size}:</span>
+            <label>Stock</label>
+            <div className="mb-4">
+              {Object.keys(currentProduct.stock || {}).map((size) => (
+                <div key={size} className="flex justify-between items-center mb-2">
+                  <span>{size}:</span>
                   <input
                     type="number"
-                    value={editData[item._id]?.stock?.[size] ?? qty}
-                    onChange={(e) =>
-                      handleEdit(item._id, "stock", {
-                        ...editData[item._id]?.stock,
-                        [size]: Number(e.target.value),
-                      })
-                    }
+                    value={editData.stock[size] || 0}
+                    onChange={(e) => handleStockChange(size, Number(e.target.value))}
                     className="border p-2 w-20 text-center"
                   />
                 </div>
               ))}
             </div>
-
-            {/* Remove Product Button */}
-            <p
-              onClick={() => removeProduct(item._id)}
-              className="text-right md:text-center cursor-pointer text-lg"
-            >
-              X
-            </p>
-
-            {/* Update Product Button */}
-            <button
-              onClick={() => updateProduct(item._id)}
-              className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
-            >
-              Save
-            </button>
+            <div className="flex justify-between">
+              <button onClick={() => setModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded">
+                Cancel
+              </button>
+              <button onClick={updateProduct} className="bg-green-500 text-white px-4 py-2 rounded">
+                Save
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </>
   );
 };

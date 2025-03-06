@@ -1,0 +1,1 @@
+sir , reset password api is working fine ,there was problem while login after resetting the password-it is not comparing hashed password correctly. 

@@ -37,6 +37,11 @@ const productSchema = new mongoose.Schema(
       required: true,
       default: {},
     },
+    totalStock: {
+      type: Number, // Sum of all stock quantities
+      required: true,
+      default: 0,
+    },
     BestSeller: {
       type: Boolean,
       default: false,

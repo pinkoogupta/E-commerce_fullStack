@@ -67,8 +67,7 @@ const List = ({ token }) => {
   const updateProduct = async () => {
     try {
       if (!currentProduct) return;
-      const response = await axios.patch(
-        `${backendUrl}/api/v1/product/updateProduct`,
+      const response = await axios.patch( `${backendUrl}/api/v1/product/updateProductAdmin`,
         { productId: currentProduct._id, ...editData },
         { headers: { token } }
       );

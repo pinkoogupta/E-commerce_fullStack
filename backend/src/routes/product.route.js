@@ -8,7 +8,7 @@ import {
 } from '../controllers/product.controller.js'; 
 import upload from '../middlewares/multer.middleware.js';
 import  AdminVerifyJWT  from '../middlewares/adminAuth.middleware.js';
-
+import {verifyJWT} from '../middlewares/userAuth.middleware.js';
 const productRoutes = Router();
 
 // Product management routes
@@ -18,7 +18,8 @@ productRoutes.post("/addProduct",AdminVerifyJWT,upload.fields([
     {name:'image3',maxCount:3},
     {name:'image4',maxCount:4}]), addProduct); 
 
-productRoutes.patch("/updateProduct",AdminVerifyJWT,updateProduct);
+productRoutes.patch("/updateProductAdmin",AdminVerifyJWT,updateProduct);
+productRoutes.patch("/updateProduct",verifyJWT,updateProduct);
 productRoutes.post("/remove",AdminVerifyJWT, removeProduct); 
 productRoutes.get("/list",listProducts);
 productRoutes.get("/singleProduct",AdminVerifyJWT,singleProduct);

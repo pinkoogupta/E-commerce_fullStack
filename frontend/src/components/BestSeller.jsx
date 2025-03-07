@@ -17,11 +17,11 @@ const BestSeller = () => {
         return 0;
       });
 
-      console.log("Sorted Products:", sortedProducts);
+      // console.log("Sorted Products:", sortedProducts);
       const topBestSellers = sortedProducts.slice(0, 5);
       setBestSeller(topBestSellers);
     } else {
-      console.log("No products available or invalid data");
+      // console.log("No products available or invalid data");
       setBestSeller([]); 
     }
   }, [products]);

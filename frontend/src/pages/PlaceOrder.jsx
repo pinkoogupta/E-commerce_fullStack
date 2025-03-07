@@ -32,7 +32,8 @@ const PlaceOrder = () => {
     event.preventDefault();
     try {
       let orderItems = [];
-
+      let updateStockPromises = [];
+  
       for (const items in cartItems) {
         for (const item in cartItems[items]) {
           if (cartItems[items][item] > 0) {
@@ -41,44 +42,59 @@ const PlaceOrder = () => {
               itemInfo.size = item;
               itemInfo.quantity = cartItems[items][item];
               orderItems.push(itemInfo);
+  
+              // Prepare stock update data
+              const updatedStock = {
+                productId: itemInfo._id,
+                stock: {
+                  ...itemInfo.stock,
+                  [item]: Math.max(0, itemInfo.stock[item] - cartItems[items][item]),
+                },
+              };
+  
+              // Push API call promise to update stock
+              updateStockPromises.push(
+                axios.patch(backendUrl + "/api/v1/product/updateProduct", updatedStock, { 
+                  headers: { token } 
+                })
+              );
             }
           }
         }
       }
-        
-      let orderData={
-        address:formData,
-        items:orderItems,
-        amount:getCartAmount() + deliveryFee
-      }
-
-      switch(method)
-      {
-          //api calls for COD
-          case "cod":
-
-          const response =await axios.post(backendUrl+ '/api/v1/order/place',orderData,{headers:{token}})
-        //  console.log(response.data.success);
-          if(response.data.success)
-          {
+  
+      let orderData = {
+        address: formData,
+        items: orderItems,
+        amount: getCartAmount() + deliveryFee,
+      };
+  
+      switch (method) {
+        case "cod":
+          const response = await axios.post(backendUrl + "/api/v1/order/place", orderData, { 
+            headers: { token } 
+          });
+          if (response.data.success) {
+            // Execute all stock update requests
+            await Promise.all(updateStockPromises);
+            
             setcartItems({});
-            navigate('/orders')
+            navigate("/orders");
             toast.success(response.data.message);
-          }
-          else{
+          } else {
             toast.error(response.data.message);
           }
-            break;
-                 
-            default:
-              break;
+          break;
+        
+        default:
+          break;
       }
-      // console.log("Order Items:", orderItems);
     } catch (error) {
       console.error("Error placing order:", error);
       toast.error(error.message);
     }
   };
+
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t">

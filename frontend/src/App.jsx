@@ -33,7 +33,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/forgot-password" element={<ForgetPassword />} /> 
-        <Route path="/resetPassword/:token" element={<ResetPassword />} /> 
+        <Route path="/reset-password/:token" element={<ResetPassword />} /> 
       </Routes>
       <Footer />
     </div>

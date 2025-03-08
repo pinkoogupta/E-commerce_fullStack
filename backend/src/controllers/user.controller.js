@@ -154,7 +154,7 @@ const forgetPassword = async (req, res) => {
   await user.save(); // Save changes to MongoDB
 
   // ✅ FIXED: Correct frontend reset password page URL
-  const resetURL = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
+  const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
   const message = `You requested to reset your password. Click the link below:
 

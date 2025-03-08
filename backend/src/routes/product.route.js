@@ -4,7 +4,8 @@ import {
     updateProduct,
     removeProduct,
     listProducts,
-    singleProduct
+    singleProduct,
+    addReview
 } from '../controllers/product.controller.js'; 
 import upload from '../middlewares/multer.middleware.js';
 import  AdminVerifyJWT  from '../middlewares/adminAuth.middleware.js';
@@ -23,6 +24,8 @@ productRoutes.patch("/updateProduct",verifyJWT,updateProduct);
 productRoutes.post("/remove",AdminVerifyJWT, removeProduct); 
 productRoutes.get("/list",listProducts);
 productRoutes.get("/singleProduct",AdminVerifyJWT,singleProduct);
+productRoutes.patch("/addReview/:productId", verifyJWT, addReview);
+
 
 export default productRoutes;
 

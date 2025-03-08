@@ -139,6 +139,42 @@ const listProducts = async (req, res) => {
   }
 
 }
+
+const addReview = async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const { productId } = req.params; // Get productId from URL params
+
+    // Validate request body
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: "Rating and comment are required" });
+    }
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    // Add the new review
+    product.reviews.push({ rating: Number(rating), comment });
+
+    // Recalculate average rating
+    const totalRatings = product.reviews.reduce((acc, review) => acc + review.rating, 0);
+    product.averageRating = totalRatings / product.reviews.length;
+
+    // Save updated product
+    await product.save();
+
+    res.status(201).json({ success: true, message: "Review added successfully", product });
+
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ success: false, message: "Error adding review", error: error.message });
+  }
+};
+
+
   
 
-export {addProduct, updateProduct, removeProduct,listProducts,singleProduct };
+export {addProduct, updateProduct, removeProduct,listProducts,singleProduct,addReview };

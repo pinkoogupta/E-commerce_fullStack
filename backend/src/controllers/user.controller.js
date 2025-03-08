@@ -44,7 +44,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -88,9 +87,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-
-
-
 const loginAdmin = async (req, res) => {
   try {
       const { email, password } = req.body;
@@ -127,10 +123,6 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-
-
-
-
 const forgetPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -146,21 +138,21 @@ const forgetPassword = async (req, res) => {
 
   const resetToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-  const tokenExpiry = Date.now() + 15 * 60 * 1000; // Token valid for 15 minutes
+  const tokenExpiry = Date.now() + 15 * 60 * 1000; 
 
   user.resetPasswordToken = hashedToken;
   user.resetPasswordExpires = tokenExpiry;
 
-  await user.save(); // Save changes to MongoDB
+  await user.save(); 
 
-  // ✅ FIXED: Correct frontend reset password page URL
+
   const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
   const message = `You requested to reset your password. Click the link below:
 
-${resetURL}
+ ${resetURL}
 
-This link will expire in 15 minutes.`;
+ This link will expire in 15 minutes.`;
 
   try {
     await sendEmail({
@@ -179,8 +171,6 @@ This link will expire in 15 minutes.`;
     res.status(500).json({ success: false, message: "Failed to send email" });
   }
 };
-
-
 
 const verifyResetToken = async (req, res) => {
   try {
@@ -205,8 +195,6 @@ const verifyResetToken = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
-
-
 
 const resetPassword = async (req, res) => {
   try {
@@ -251,10 +239,6 @@ const resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
-
-export default resetPassword;
-
-
 
 
 

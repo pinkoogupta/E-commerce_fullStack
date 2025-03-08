@@ -109,7 +109,7 @@ const Cart = () => {
             <button
               onClick={handleCheckout}
               className={`text-sm my-8 px-8 py-3 ${
-                isStockAvailable ? "bg-black text-white" : "bg-gray-500 cursor-not-allowed"
+                isStockAvailable ? "bg-black text-white" : "bg-rose-400 cursor-not-allowed"
               }`}
               disabled={!isStockAvailable}
             >

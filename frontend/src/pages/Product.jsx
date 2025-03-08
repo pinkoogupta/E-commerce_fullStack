@@ -7,15 +7,13 @@ import RelatedProducts from "../components/RelatedProducts";
 const Product = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { products,token, currency, addToCart } = useContext(ShopContext);
+  const { products, token, currency, addToCart } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
   const [selectedStockWarning, setSelectedStockWarning] = useState(null);
   const [disabledSizes, setDisabledSizes] = useState({});
 
-  // console.log(token);
-  
   useEffect(() => {
     const fetchProductData = () => {
       const foundProduct = products.find((item) => item._id === productId);
@@ -75,11 +73,13 @@ const Product = () => {
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{productData.name}</h1>
           <div className="flex items-center mt-2 gap-1">
-            {[...Array(4)].map((_, i) => (
+            {[...Array(Math.floor(productData.averageRating || 0))].map((_, i) => (
               <img key={i} src={assets.star_icon} className="w-3 5" />
             ))}
-            <img src={assets.star_dull_icon} className="w-3 5" />
-            <p className="pl-2">{122}</p>
+            {[...Array(5 - Math.floor(productData.averageRating || 0))].map((_, i) => (
+              <img key={i} src={assets.star_dull_icon} className="w-3 5" />
+            ))}
+            <p className="pl-2">{productData.reviews.length} Reviews</p>
           </div>
           <p className="mt-5 text-3xl font-medium">{currency} {productData.price}</p>
           <p className="mt-5 text-gray-500 md:w-[4/5]">{productData.description}</p>
@@ -127,15 +127,34 @@ const Product = () => {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold">Customer Reviews</h2>
+        {productData.reviews.length > 0 ? (
+          <div className="mt-4 space-y-4">
+            {productData.reviews.map((review, index) => (
+              <div key={index} className="border p-3 rounded-md">
+                <div className="flex items-center gap-2">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <img key={i} src={assets.star_icon} className="w-3 5" />
+                  ))}
+                  {[...Array(5 - review.rating)].map((_, i) => (
+                    <img key={i} src={assets.star_dull_icon} className="w-3 5" />
+                  ))}
+                </div>
+                <p className="mt-2 text-gray-700">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-gray-500">No reviews yet.</p>
+        )}
+      </div>
+
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
     </div>
   );
 };
 
 export default Product;
-
-
-
-
-
-

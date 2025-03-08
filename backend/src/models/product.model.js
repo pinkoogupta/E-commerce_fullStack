@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product price is required"],
     },
     image: {
-      type: Array, 
+      type: Array,
       required: true,
     },
     category: {
@@ -28,17 +28,17 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product subcategory is required"],
     },
     sizes: {
-      type: [String], // List of available sizes (e.g., ["S", "M", "L", "XL"])
+      type: [String],
       required: [true, "Product sizes are required"],
     },
     stock: {
-      type: Map, // Store stock count per size
+      type: Map,
       of: Number,
       required: true,
       default: {},
     },
     totalStock: {
-      type: Number, // Sum of all stock quantities
+      type: Number,
       required: true,
       default: 0,
     },
@@ -48,7 +48,23 @@ const productSchema = new mongoose.Schema(
     },
     date: {
       type: Number,
-    }
+    },
+    reviews: [
+      {
+        rating: {
+          type: Number,
+          min: 1,
+          max: 5,
+        },
+        comment: {
+          type: String
+        },
+      },
+    ],
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

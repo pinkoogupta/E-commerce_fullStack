@@ -10,6 +10,7 @@ const Collection = () => {
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOption, setSortOption] = useState("relevent");
 
   const toggleCategory = (e) => {
@@ -26,6 +27,13 @@ const Collection = () => {
     );
   };
 
+  const toggleSize = (e) => {
+    const value = e.target.value;
+    setSelectedSizes((prev) =>
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+    );
+  };
+
   const sortProducts = (productsToSort) => {
     switch (sortOption) {
       case "low-high":
@@ -33,7 +41,7 @@ const Collection = () => {
       case "high-low":
         return [...productsToSort].sort((a, b) => b.price - a.price);
       default:
-        return productsToSort; // Relevant sorting can be customized
+        return productsToSort; // Default to relevant sorting
     }
   };
 
@@ -57,9 +65,16 @@ const Collection = () => {
       filtered = filtered.filter((product) => subCategory.includes(product.subCategory));
     }
 
+    // Apply size filter
+    if (selectedSizes.length > 0) {
+      filtered = filtered.filter((product) =>
+        Object.keys(product.stock).some(size => selectedSizes.includes(size))
+      );
+    }
+
     // Apply sorting
     setFilterProducts(sortProducts(filtered));
-  }, [category, subCategory, products, sortOption, search, showSearch]);
+  }, [category, subCategory, selectedSizes, products, sortOption, search, showSearch]);
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -77,7 +92,7 @@ const Collection = () => {
           />
         </p>
 
-        {/* Responsive Filter Container */}
+        {/* Filter Options */}
         <div className={`border border-gray-300 pl-5 py-3 mt-6 ${showFilter ? "block" : "hidden"} sm:block`}>
           {/* Category Filter */}
           <div className="border border-gray-300 pl-5 py-3 my-5">
@@ -85,12 +100,7 @@ const Collection = () => {
             <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
               {["Men", "Women", "Kids"].map((cat) => (
                 <p className="flex gap-2" key={cat}>
-                  <input
-                    type="checkbox"
-                    className="w-3"
-                    value={cat}
-                    onChange={toggleCategory}
-                  />
+                  <input type="checkbox" className="w-3" value={cat} onChange={toggleCategory} />
                   {cat}
                 </p>
               ))}
@@ -103,13 +113,21 @@ const Collection = () => {
             <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
               {["Topwear", "Bottomwear", "Winterwear"].map((subCat) => (
                 <p className="flex gap-2" key={subCat}>
-                  <input
-                    type="checkbox"
-                    className="w-3"
-                    value={subCat}
-                    onChange={toggleSubCategory}
-                  />
+                  <input type="checkbox" className="w-3" value={subCat} onChange={toggleSubCategory} />
                   {subCat}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* Size Filter */}
+          <div className="border border-gray-300 pl-5 py-3 my-5">
+            <p className="mb-3 text-sm font-medium">SIZE</p>
+            <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
+              {["S", "M", "L", "XL", "XXL"].map((size) => (
+                <p className="flex gap-2" key={size}>
+                  <input type="checkbox" className="w-3" value={size} onChange={toggleSize} />
+                  {size}
                 </p>
               ))}
             </div>
@@ -117,33 +135,21 @@ const Collection = () => {
         </div>
       </div>
 
-      {/* Right Side - Products */}
+      {/* Products */}
       <div className="flex-1">
         <div className="flex justify-between text-base sm:text-2xl mb-4">
           <Title text1={"ALL"} text2={"COLLECTION"} />
-
-          {/* Product Sort */}
-          <select
-            className="border-2 border-gray-300 text-sm px-2"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-          >
+          <select className="border-2 border-gray-300 text-sm px-2" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
             <option value="relevent">Sort by: Relevant</option>
             <option value="low-high">Sort by: Low-High</option>
             <option value="high-low">Sort by: High-Low</option>
           </select>
         </div>
 
-        {/* Map Products */}
+        {/* Render Products */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
           {filterProducts.map((item, index) => (
-            <ProductItem
-              key={index}
-              id={item._id}
-              name={item.name}
-              image={item.image}
-              price={item.price}
-            />
+            <ProductItem key={index} id={item._id} name={item.name} image={item.image} price={item.price} selectedSizes={selectedSizes} />
           ))}
         </div>
       </div>

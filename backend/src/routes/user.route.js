@@ -17,9 +17,9 @@ userRoutes.post("/login",loginUser);
 userRoutes.post("/adminLogin",loginAdmin);
 
 // userRoutes.patch("/updateDetails",verifyJWT,updateAccountDetails);
-userRoutes.post("/forgetPassword",verifyJWT,forgetPassword);
+userRoutes.post("/forgetPassword",forgetPassword);
 userRoutes.get("/resetPassword/:token",verifyResetToken);
-userRoutes.post("/resetPassword/:token",verifyJWT,resetPassword);
+userRoutes.post("/resetPassword/:token",resetPassword);
 
 
 // userRoutes.delete("/delete",verifyJWT,deleteUser);

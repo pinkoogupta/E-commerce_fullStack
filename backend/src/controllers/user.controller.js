@@ -144,8 +144,8 @@ const forgetPassword = async (req, res) => {
     return res.status(404).json({ success: false, message: "User not found" });
   }
 
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
   const tokenExpiry = Date.now() + 15 * 60 * 1000; // Token valid for 15 minutes
 
   user.resetPasswordToken = hashedToken;
@@ -153,14 +153,14 @@ const forgetPassword = async (req, res) => {
 
   await user.save(); // Save changes to MongoDB
 
-  const resetURL = `${req.protocol}://${req.get('host')}/api/v1/user/resetPassword/${resetToken}`;
+  // ✅ FIXED: Correct frontend reset password page URL
+  const resetURL = `${process.env.FRONTEND_URL}/resetPassword/${resetToken}`;
 
-  const message = `
-    <h2>Password Reset Request</h2>
-    <p>You requested to reset your password. Click the link below to reset your password:</p>
-    <a href="${resetURL}" target="_blank">${resetURL}</a>
-    <p>This link will expire in 15 minutes.</p>
-  `;
+  const message = `You requested to reset your password. Click the link below:
+
+${resetURL}
+
+This link will expire in 15 minutes.`;
 
   try {
     await sendEmail({
@@ -179,6 +179,7 @@ const forgetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to send email" });
   }
 };
+
 
 
 const verifyResetToken = async (req, res) => {

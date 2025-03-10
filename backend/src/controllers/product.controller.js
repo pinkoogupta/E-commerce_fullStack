@@ -146,8 +146,8 @@ const addReview = async (req, res) => {
     const { productId } = req.params; // Get productId from URL params
 
     // Validate request body
-    if (!rating || !comment) {
-      return res.status(400).json({ success: false, message: "Rating and comment are required" });
+    if (!rating) {
+      return res.status(400).json({ success: false, message: "Rating is required" });
     }
 
     // Find the product

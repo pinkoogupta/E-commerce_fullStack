@@ -3,7 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
-import { toast } from "react-toastify";  // Import toast
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
@@ -22,7 +22,7 @@ const Cart = () => {
             const availableStock = product?.stock?.[size] || 0;
 
             if (cartItems[productId][size] > availableStock) {
-              stockAvailable = false;
+              stockAvailable = false; // Only disable button if an item exceeds stock
             }
 
             tempData.push({
@@ -42,7 +42,7 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (!isStockAvailable) {
-      toast.error("Stock is not available for some items!");
+      toast.error("Some items exceed available stock! Please adjust before proceeding.");
       return;
     }
     navigate('/place-order');

@@ -40,8 +40,10 @@ const Collection = () => {
         return [...productsToSort].sort((a, b) => a.price - b.price);
       case "high-low":
         return [...productsToSort].sort((a, b) => b.price - a.price);
+      case "newest":
+        return [...productsToSort].reverse(); 
       default:
-        return productsToSort; // Default to relevant sorting
+        return productsToSort; 
     }
   };
 
@@ -143,6 +145,7 @@ const Collection = () => {
             <option value="relevent">Sort by: Relevant</option>
             <option value="low-high">Sort by: Low-High</option>
             <option value="high-low">Sort by: High-Low</option>
+            <option value="newest">Sort by: Newest Arrivals</option>
           </select>
         </div>
 

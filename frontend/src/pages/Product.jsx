@@ -7,12 +7,13 @@ import RelatedProducts from "../components/RelatedProducts";
 const Product = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { products, token, currency, addToCart } = useContext(ShopContext);
+  const { products, token, currency, addToCart, cartItems } = useContext(ShopContext);
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
   const [selectedStockWarning, setSelectedStockWarning] = useState(null);
   const [disabledSizes, setDisabledSizes] = useState({});
+  const [buttonText, setButtonText] = useState("ADD TO CART");
 
   useEffect(() => {
     const fetchProductData = () => {
@@ -32,23 +33,45 @@ const Product = () => {
     return <div className="opacity-0">Loading...</div>;
   }
 
-  const handleSizeSelect = (item) => {
-    setSize(item);
-    if (productData.stock?.[item] < 10 && productData.stock[item] > 0) {
-      setSelectedStockWarning(`Only ${productData.stock[item]} left in size ${item}!`);
+  const handleSizeSelect = (selectedSize) => {
+    setSize(selectedSize);
+
+    // Check if the selected size is already in the cart
+    if (cartItems[productData._id] && cartItems[productData._id][selectedSize]) {
+      setButtonText("GO TO CART"); // If in cart, set to "GO TO CART"
+    } else {
+      setButtonText("ADD TO CART"); // If not in cart, set to "ADD TO CART"
+    }
+
+    // Show stock warning if applicable
+    if (productData.stock?.[selectedSize] < 10 && productData.stock[selectedSize] > 0) {
+      setSelectedStockWarning(
+        `Only ${productData.stock[selectedSize]} left in size ${selectedSize}!`
+      );
     } else {
       setSelectedStockWarning(null);
     }
   };
 
   const handleAddToCart = () => {
-    if (size) {
+    if (!size) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    // If the item is already in the cart for the selected size, navigate to the cart page
+    if (cartItems[productData._id] && cartItems[productData._id][size]) {
+      navigate("/cart");
+    } else {
+      // Add the item to the cart and update the button text
       addToCart(productData._id, size);
-      setDisabledSizes((prev) => ({ ...prev, [size]: true }));
+      setButtonText("GO TO CART");
     }
   };
 
-  const isOutOfStock = Object.values(productData.stock || {}).every((qty) => qty === 0);
+  const isOutOfStock = Object.values(productData.stock || {}).every(
+    (qty) => qty === 0
+  );
 
   return (
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
@@ -66,23 +89,35 @@ const Product = () => {
             ))}
           </div>
           <div className="w-full sm:w-[80%]">
-            <img src={image} className="w-full h-auto" alt="Main Product Image" />
+            <img
+              src={image}
+              className="w-full h-auto"
+              alt="Main Product Image"
+            />
           </div>
         </div>
 
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{productData.name}</h1>
           <div className="flex items-center mt-2 gap-1">
-            {[...Array(Math.floor(productData.averageRating || 0))].map((_, i) => (
-              <img key={i} src={assets.star_icon} className="w-3 5" />
-            ))}
-            {[...Array(5 - Math.floor(productData.averageRating || 0))].map((_, i) => (
-              <img key={i} src={assets.star_dull_icon} className="w-3 5" />
-            ))}
+            {[...Array(Math.floor(productData.averageRating || 0))].map(
+              (_, i) => (
+                <img key={i} src={assets.star_icon} className="w-3 5" />
+              )
+            )}
+            {[...Array(5 - Math.floor(productData.averageRating || 0))].map(
+              (_, i) => (
+                <img key={i} src={assets.star_dull_icon} className="w-3 5" />
+              )
+            )}
             <p className="pl-2">{productData.reviews.length} Reviews</p>
           </div>
-          <p className="mt-5 text-3xl font-medium">{currency} {productData.price}</p>
-          <p className="mt-5 text-gray-500 md:w-[4/5]">{productData.description}</p>
+          <p className="mt-5 text-3xl font-medium">
+            {currency} {productData.price}
+          </p>
+          <p className="mt-5 text-gray-500 md:w-[4/5]">
+            {productData.description}
+          </p>
           <div className="flex flex-col gap-4 my-6">
             <p>Select Size</p>
             <div className="flex gap-2">
@@ -90,11 +125,11 @@ const Product = () => {
                 <button
                   key={index}
                   onClick={() => handleSizeSelect(item)}
-                  disabled={productData.stock[item] === 0 || disabledSizes[item]}
+                  disabled={productData.stock[item] === 0}
                   className={`border py-2 px-4 bg-gray-100 ${
                     item === size ? "border-orange-500 bg-gray-200" : ""
                   } ${
-                    productData.stock[item] === 0 || disabledSizes[item]
+                    productData.stock[item] === 0
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
@@ -104,7 +139,11 @@ const Product = () => {
               ))}
             </div>
           </div>
-          {selectedStockWarning && <div className="mt-4 text-sm text-red-500">{selectedStockWarning}</div>}
+          {selectedStockWarning && (
+            <div className="mt-4 text-sm text-red-500">
+              {selectedStockWarning}
+            </div>
+          )}
           {isOutOfStock ? (
             <p className="text-red-500 font-bold mt-4 ml-1">Out of Stock</p>
           ) : (
@@ -113,12 +152,9 @@ const Product = () => {
               className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700 mt-4 mr-4"
               disabled={!size || disabledSizes[size]}
             >
-              ADD TO CART
+              {buttonText}
             </button>
           )}
-          <button onClick={() => navigate("/cart")} className="bg-blue-500 text-white px-8 py-3 text-sm active:bg-blue-700 mt-4">
-            Go to Cart
-          </button>
           <hr className="mt-8 sm:w-4/5" />
           <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
             <p>100% Original Product</p>
@@ -140,7 +176,11 @@ const Product = () => {
                     <img key={i} src={assets.star_icon} className="w-3 5" />
                   ))}
                   {[...Array(5 - review.rating)].map((_, i) => (
-                    <img key={i} src={assets.star_dull_icon} className="w-3 5" />
+                    <img
+                      key={i}
+                      src={assets.star_dull_icon}
+                      className="w-3 5"
+                    />
                   ))}
                 </div>
                 <p className="mt-2 text-gray-700">{review.comment}</p>
@@ -152,7 +192,10 @@ const Product = () => {
         )}
       </div>
 
-      <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
+      <RelatedProducts
+        category={productData.category}
+        subCategory={productData.subCategory}
+      />
     </div>
   );
 };

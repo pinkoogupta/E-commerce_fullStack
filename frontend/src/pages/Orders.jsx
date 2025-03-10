@@ -7,8 +7,8 @@ import { toast } from "react-toastify";
 const Orders = () => {
   const { backendUrl, token, currency } = useContext(ShopContext);
   const [orderData, setOrderData] = useState([]);
-  const [reviews, setReviews] = useState({}); // Separate review state per product
-  const [submittingReview, setSubmittingReview] = useState({}); // Tracks loading per product
+  const [reviews, setReviews] = useState({}); // Stores rating and comment per product
+  const [submittingReview, setSubmittingReview] = useState({}); // Tracks submission status
 
   // Load Orders
   const loadOrderData = async () => {
@@ -18,7 +18,6 @@ const Orders = () => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-
         let allOrdersItem = [];
         response.data.orders.forEach((order) => {
           order.items.forEach((item) => {
@@ -47,8 +46,8 @@ const Orders = () => {
     e.preventDefault();
     const review = reviews[productId];
 
-    if (!review || !review.rating || !review.comment) {
-      toast.error("Please fill all fields before submitting the review.");
+    if (!review || !review.rating) {
+      toast.error("Please select a rating before submitting the review.");
       return;
     }
 
@@ -63,13 +62,21 @@ const Orders = () => {
 
       if (response.data.success) {
         toast.success("Review submitted successfully!");
-        setReviews((prev) => ({ ...prev, [productId]: { rating: "", comment: "" } }));
+        setReviews((prev) => ({ ...prev, [productId]: { rating: 0, comment: "" } }));
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to submit review.");
     } finally {
       setSubmittingReview((prev) => ({ ...prev, [productId]: false }));
     }
+  };
+
+  // Handle Star Click
+  const handleStarClick = (productId, rating) => {
+    setReviews((prev) => ({
+      ...prev,
+      [productId]: { ...prev[productId], rating },
+    }));
   };
 
   return (
@@ -103,26 +110,21 @@ const Orders = () => {
               <button onClick={loadOrderData} className="border px-4 py-2 text-sm font-medium rounded-sm">Track Order</button>
             </div>
 
-            {/* Review Section (Only if Delivered) */}
             {item.status === "Delivered" && (
               <div className="mt-4">
                 <p className="font-medium text-gray-700">Leave a Review:</p>
                 <form onSubmit={(e) => handleReviewSubmit(e, item._id)} className="mt-2 flex flex-col gap-2">
-                  <select
-                    value={reviews[item._id]?.rating || ""}
-                    onChange={(e) => setReviews((prev) => ({
-                      ...prev,
-                      [item._id]: { ...prev[item._id], rating: e.target.value }
-                    }))}
-                    className="border p-2 rounded-md w-32"
-                  >
-                    <option value="">Select Rating</option>
-                    <option value="1">⭐☆☆☆☆</option>
-                    <option value="2">⭐⭐☆☆☆</option>
-                    <option value="3">⭐⭐⭐☆☆</option>
-                    <option value="4">⭐⭐⭐⭐☆</option>
-                    <option value="5">⭐⭐⭐⭐⭐</option>
-                  </select>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className={`text-2xl cursor-pointer ${reviews[item._id]?.rating >= star ? "text-yellow-500" : "text-gray-400"}`}
+                        onClick={() => handleStarClick(item._id, star)}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
                   <textarea
                     value={reviews[item._id]?.comment || ""}
                     onChange={(e) => setReviews((prev) => ({

@@ -18,7 +18,7 @@ userRoutes.post("/adminLogin",loginAdmin);
 
 // userRoutes.patch("/updateDetails",verifyJWT,updateAccountDetails);
 userRoutes.post("/forgetPassword",forgetPassword);
-userRoutes.get("/resetPassword/:token",verifyResetToken);
+userRoutes.get("/verifyPassword/:token",verifyResetToken);
 userRoutes.post("/resetPassword/:token",resetPassword);
 
 

@@ -16,7 +16,7 @@ const ResetPassword = () => {
   useEffect(() => {
     async function verifyToken() {
       try {
-        const response = await axios.get(`${backendUrl}/api/v1/user/resetPassword/${token}`);
+        const response = await axios.get(`${backendUrl}/api/v1/user/verifyPassword/${token}`);
         setIsValidToken(true); // Token is valid
       } catch (error) {
         setIsValidToken(false);

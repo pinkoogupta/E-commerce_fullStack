@@ -19,8 +19,8 @@ const Login = () => {
         const response = await axios.post(`${backendUrl}/api/v1/user/register`, { name, email, password });
 
         if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          // setToken(response.data.token);
+          // localStorage.setItem("token", response.data.token);
           toast.success(response.data.message);
           navigate("/");
         } else {

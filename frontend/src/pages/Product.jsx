@@ -37,7 +37,7 @@ const Product = () => {
     setSize(selectedSize);
 
     // Check if the selected size is already in the cart
-    if (cartItems[productData._id] && cartItems[productData._id][selectedSize]) {
+    if (cartItems?.[productData._id]?.[selectedSize]) {
       setButtonText("GO TO CART"); // If in cart, set to "GO TO CART"
     } else {
       setButtonText("ADD TO CART"); // If not in cart, set to "ADD TO CART"
@@ -60,7 +60,7 @@ const Product = () => {
     }
 
     // If the item is already in the cart for the selected size, navigate to the cart page
-    if (cartItems[productData._id] && cartItems[productData._id][size]) {
+    if (cartItems?.[productData._id]?.[size]) {
       navigate("/cart");
     } else {
       // Add the item to the cart and update the button text

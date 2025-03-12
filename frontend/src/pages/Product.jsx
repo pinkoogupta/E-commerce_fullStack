@@ -77,27 +77,21 @@ const Product = () => {
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
       <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
         <div className="flex-1 flex flex-col-reverse sm:flex-row gap-3">
-          {/* Thumbnail images container */}
-          <div className="flex flex-row sm:flex-col overflow-x-auto justify-between sm:overflow-y-auto sm:justify-normal sm:w-[19.7%] w-full h-auto">
+          <div className="flex flex-col overflow-x-auto justify-between sm:overflow-x-scroll sm:justify-normal sm:w-[19.7%] w-full">
             {productData.image.map((item, index) => (
-              <div 
-                key={index} 
-                className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer h-24 sm:h-24"
-              >
-                <img
-                  src={item}
-                  className="w-full h-full object-cover"
-                  alt={`Product Image ${index + 1}`}
-                  onClick={() => setImage(item)}
-                />
-              </div>
+              <img
+                src={item}
+                key={index}
+                className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer"
+                alt={`Product Image ${index + 1}`}
+                onClick={() => setImage(item)}
+              />
             ))}
           </div>
-          {/* Main product image container */}
-          <div className="w-full sm:w-[80%] h-auto sm:h-96 md:h-120">
+          <div className="w-full sm:w-[80%]">
             <img
               src={image}
-              className="w-full h-full object-contain"
+              className="w-full h-auto"
               alt="Main Product Image"
             />
           </div>

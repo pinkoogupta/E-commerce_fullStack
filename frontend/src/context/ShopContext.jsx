@@ -29,15 +29,15 @@ const ShopContextProvider =({children})=>{
         let cartData=structuredClone(cartItems)
         if(cartData[itemId]){
             if(cartData[itemId][size]){
-                cartData[itemId][size]+=1
+                cartData[itemId][size]+=1;
             }
             else{
-                cartData[itemId][size]=1
+                cartData[itemId][size]=1;
             }
         }
         else{
             cartData[itemId]={};
-            cartData[itemId][size]=1
+            cartData[itemId][size]=1;
         }
         setcartItems(cartData);
 
@@ -59,12 +59,12 @@ const ShopContextProvider =({children})=>{
     }
     
 const getCartCount=()=>{
-    let totalCount = 0
+    let totalCount = 0;
     for(const items in cartItems){
         for(const item in cartItems[items]){
             try {
                 if(cartItems[items][item]>0){
-                    totalCount+=cartItems[items][item]
+                    totalCount+=cartItems[items][item];
                 }
             } catch (error) {
                 console.log(error);
@@ -72,7 +72,7 @@ const getCartCount=()=>{
             }
         }
     }
-    return totalCount
+    return totalCount;
 }
 
 const updateQuantity =async(itemId,size,quantity)=>{

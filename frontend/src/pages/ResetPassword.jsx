@@ -1,13 +1,13 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { ShopContext } from "../context/ShopContext";
+import { useSelector } from "react-redux"; // Import useSelector to access Redux state
 
 const ResetPassword = () => {
   const { token } = useParams(); // Extract token from URL
   const navigate = useNavigate();
-  const { backendUrl } = useContext(ShopContext);
+  const { backendUrl } = useSelector((state) => state.shop); // Get backendUrl from Redux
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState(null); // Track token validity

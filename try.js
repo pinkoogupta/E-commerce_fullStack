@@ -1,13 +1,12 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { assets } from "../assets/assets";
+import React, { useContext } from 'react';
+import { ShopContext } from '../context/ShopContext';
+import { Link } from 'react-router-dom';
+import { assets } from '../assets/assets';
 
 const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
-  const currency = useSelector((state) => state.shop.currency);
-  const products = useSelector((state) => state.shop.products);
+  const { currency, products } = useContext(ShopContext);
 
-  // Find the product in the Redux store
+  // Find the product in the context
   const product = products.find((item) => item._id === id);
   const stock = product?.stock || {};
   const averageRating = product?.averageRating || 0;
@@ -17,22 +16,21 @@ const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
   const allSizesStock = Object.values(stock);
 
   // Check general stock availability (when no size filter is applied)
-  const isOutOfStock = allSizesStock.every((qty) => qty === 0);
-  const isFewLeft = allSizesStock.some((qty) => qty > 0 && qty < 10);
+  const isOutOfStock = allSizesStock.every(qty => qty === 0);
+  const isFewLeft = allSizesStock.some(qty => qty > 0 && qty < 10);
 
   // If size filter is applied, check stock only for selected sizes
-  let filteredStock =
-    selectedSizes.length > 0
-      ? selectedSizes.map((size) => stock[size] || 0)
-      : allSizesStock;
+  let filteredStock = selectedSizes.length > 0
+    ? selectedSizes.map(size => stock[size] || 0)
+    : allSizesStock;
 
-  const isFilteredOutOfStock = filteredStock.every((qty) => qty === 0);
-  const isFilteredFewLeft = filteredStock.some((qty) => qty > 0 && qty < 10);
+  const isFilteredOutOfStock = filteredStock.every(qty => qty === 0);
+  const isFilteredFewLeft = filteredStock.some(qty => qty > 0 && qty < 10);
 
   return (
     <Link to={`/product/${id}`} className='relative text-gray-700 cursor-pointer'>
       {/* Image Container with Fixed Dimensions */}
-      <div className='overflow-hidden relative h-90 w-full'> {/* Fixed height and width */}
+      <div className='overflow-hidden relative h-64 w-full'> {/* Fixed height and width */}
         <img
           className='w-full h-full object-cover hover:scale-110 ease-in-out duration-300'
           src={image?.[0] || 'default-image-path.jpg'}
@@ -72,12 +70,9 @@ const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
       </div>
 
       {/* Product Details */}
-      <p className="pt-3 pb-1 text-sm">{name}</p>
+      <p className='pt-3 pb-1 text-sm'>{name}</p>
       <div className="flex justify-between items-center">
-        <p className="text-sm font-medium">
-          {currency}
-          {price}
-        </p>
+        <p className='text-sm font-medium'>{currency}{price}</p>
         {/* Rating Section */}
         <div className="flex items-center gap-1">
           {[...Array(Math.floor(averageRating || 0))].map((_, i) => (

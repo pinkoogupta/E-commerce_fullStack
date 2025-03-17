@@ -1,13 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ShopContext } from "../context/ShopContext";
+import { useDispatch, useSelector } from "react-redux";
 import { assets } from "../assets/assets";
+import { toast } from "react-toastify";
 import RelatedProducts from "../components/RelatedProducts";
+import { addToCart, fetchProducts } from "../redux/features/shopSlice"; // Import the addToCart action
 
 const Product = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { products, token, currency, addToCart, cartItems } = useContext(ShopContext);
+  const dispatch = useDispatch();
+
+  // Access state from Redux store
+  const { products, cartItems, currency, token } = useSelector((state) => state.shop);
+
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState("");
   const [size, setSize] = useState("");
@@ -15,6 +21,11 @@ const Product = () => {
   const [disabledSizes, setDisabledSizes] = useState({});
   const [buttonText, setButtonText] = useState("ADD TO CART");
 
+  useEffect(() => {
+    dispatch(fetchProducts()); // Fetch products on component mount
+  }, [dispatch]);
+
+  // Fetch product data based on productId
   useEffect(() => {
     const fetchProductData = () => {
       const foundProduct = products.find((item) => item._id === productId);
@@ -33,6 +44,7 @@ const Product = () => {
     return <div className="opacity-0">Loading...</div>;
   }
 
+  // Handle size selection
   const handleSizeSelect = (selectedSize) => {
     setSize(selectedSize);
 
@@ -53,6 +65,7 @@ const Product = () => {
     }
   };
 
+  // Handle adding to cart
   const handleAddToCart = () => {
     if (!size) {
       toast.error("Please select a size");
@@ -63,12 +76,13 @@ const Product = () => {
     if (cartItems?.[productData._id]?.[size]) {
       navigate("/cart");
     } else {
-      // Add the item to the cart and update the button text
-      addToCart(productData._id, size);
+      // Dispatch the addToCart action
+      dispatch(addToCart({ itemId: productData._id, size, token }));
       setButtonText("GO TO CART");
     }
   };
 
+  // Check if the product is out of stock
   const isOutOfStock = Object.values(productData.stock || {}).every(
     (qty) => qty === 0
   );
@@ -77,26 +91,32 @@ const Product = () => {
     <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
       <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
         <div className="flex-1 flex flex-col-reverse sm:flex-row gap-3">
-          <div className="flex flex-col overflow-x-auto justify-between sm:overflow-x-scroll sm:justify-normal sm:w-[19.7%] w-full">
+          {/* Thumbnail Images - increased height */}
+          <div className="flex flex-row sm:flex-col overflow-x-auto sm:overflow-y-auto sm:overflow-x-hidden sm:justify-start sm:w-[19.7%] w-full">
             {productData.image.map((item, index) => (
-              <img
-                src={item}
-                key={index}
-                className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer"
-                alt={`Product Image ${index + 1}`}
-                onClick={() => setImage(item)}
-              />
+              <div 
+                key={index} 
+                className="w-[24%] sm:w-full h-28 sm:h-32 sm:mb-3 flex-shrink-0 cursor-pointer"
+              >
+                <img
+                  src={item}
+                  className="w-full h-full object-cover"
+                  alt={`Product Image ${index + 1}`}
+                  onClick={() => setImage(item)}
+                />
+              </div>
             ))}
           </div>
-          <div className="w-full sm:w-[80%]">
+          {/* Main Image - increased height */}
+          <div className="w-full sm:w-[80%] h-auto sm:h-[600px]">
             <img
               src={image}
-              className="w-full h-auto"
+              className="w-full h-full object-contain"
               alt="Main Product Image"
             />
           </div>
         </div>
-
+  
         <div className="flex-1">
           <h1 className="font-medium text-2xl mt-2">{productData.name}</h1>
           <div className="flex items-center mt-2 gap-1">
@@ -163,7 +183,7 @@ const Product = () => {
           </div>
         </div>
       </div>
-
+  
       {/* Reviews Section */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold">Customer Reviews</h2>
@@ -191,7 +211,7 @@ const Product = () => {
           <p className="mt-4 text-gray-500">No reviews yet.</p>
         )}
       </div>
-
+  
       <RelatedProducts
         category={productData.category}
         subCategory={productData.subCategory}

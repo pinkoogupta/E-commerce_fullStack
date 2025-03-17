@@ -1,14 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import { assets } from "../assets/assets";
-import { ShopContext } from "../context/ShopContext";
-import { toast } from "react-toastify";
-import axios from 'axios';
+import { setCartItems } from "../redux/features/shopSlice";  // Import Redux actions
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
-  const { navigate, backendUrl, token, cartItems, setcartItems, getCartAmount, deliveryFee, products } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { token, cartItems, products, deliveryFee,backendUrl } = useSelector((state) => state.shop);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -54,7 +58,7 @@ const PlaceOrder = () => {
   
               // Push API call promise to update stock
               updateStockPromises.push(
-                axios.patch(backendUrl + "/api/v1/product/updateProduct", updatedStock, { 
+                axios.patch(`${backendUrl}/api/v1/product/updateProduct`, updatedStock, { 
                   headers: { token } 
                 })
               );
@@ -71,14 +75,14 @@ const PlaceOrder = () => {
   
       switch (method) {
         case "cod":
-          const response = await axios.post(backendUrl + "/api/v1/order/place", orderData, { 
+          const response = await axios.post(`${backendUrl}/api/v1/order/place`, orderData, { 
             headers: { token } 
           });
           if (response.data.success) {
             // Execute all stock update requests
             await Promise.all(updateStockPromises);
             
-            setcartItems({});
+            dispatch(setCartItems({})); // Clear cart items
             navigate("/orders");
             toast.success(response.data.message);
           } else {
@@ -95,6 +99,18 @@ const PlaceOrder = () => {
     }
   };
 
+  const getCartAmount = () => {
+    let totalAmount = 0;
+    for (const items in cartItems) {
+      const itemInfo = products.find((product) => product._id === items);
+      for (const item in cartItems[items]) {
+        if (cartItems[items][item] > 0) {
+          totalAmount += itemInfo.price * cartItems[items][item];
+        }
+      }
+    }
+    return totalAmount;
+  };
 
   return (
     <form onSubmit={onSubmitHandler} className="flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t">

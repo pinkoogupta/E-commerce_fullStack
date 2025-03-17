@@ -1,15 +1,35 @@
-import { useContext, useState, useEffect } from "react";
-import { ShopContext } from "../context/ShopContext";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {fetchProducts, getUserCart, updateCartQuantity } from "../redux/features/shopSlice";
 import Title from "../components/Title";
 import { assets } from "../assets/assets";
 import CartTotal from "../components/CartTotal";
 import { toast } from "react-toastify";
 
 const Cart = () => {
-  const { products, currency, cartItems, updateQuantity, navigate } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { products, currency, cartItems, token } = useSelector((state) => state.shop);
   const [cartData, setCartData] = useState([]);
   const [isStockAvailable, setIsStockAvailable] = useState(true);
 
+  useEffect(() => {
+    if (!products.length) {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, products.length]);
+
+
+  // Fetch user cart when the component mounts
+  useEffect(() => {
+    if (token) {
+      dispatch(getUserCart(token));
+    }
+  }, [dispatch, token]);
+
+  // Update cartData and stock availability whenever cartItems or products change
   useEffect(() => {
     if (products.length > 0) {
       const tempData = [];
@@ -22,7 +42,7 @@ const Cart = () => {
             const availableStock = product?.stock?.[size] || 0;
 
             if (cartItems[productId][size] > availableStock) {
-              stockAvailable = false; // Only disable button if an item exceeds stock
+              stockAvailable = false;
             }
 
             tempData.push({
@@ -45,7 +65,7 @@ const Cart = () => {
       toast.error("Some items exceed available stock! Please adjust before proceeding.");
       return;
     }
-    navigate('/place-order');
+    navigate("/place-order");
   };
 
   return (
@@ -53,7 +73,6 @@ const Cart = () => {
       <div className="text-2xl mb-3">
         <Title text1={"YOUR"} text2={"CART"} />
       </div>
-
       <div>
         {cartData.map((item) => {
           const productData = products.find((product) => product._id === item._id);
@@ -82,18 +101,19 @@ const Cart = () => {
               </div>
 
               <input
-                onChange={(e) =>
-                  e.target.value === "" || e.target.value === "0"
-                    ? null
-                    : updateQuantity(item._id, item.size, Number(e.target.value))
-                }
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (value > 0) {
+                    dispatch(updateCartQuantity({ itemId: item._id, size: item.size, quantity: value, token }));
+                  }
+                }}
                 className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1"
                 type="number"
                 min={1}
                 defaultValue={item.quantity}
               />
               <img
-                onClick={() => updateQuantity(item._id, item.size, 0)}
+                onClick={() => dispatch(updateCartQuantity({ itemId: item._id, size: item.size, quantity: 0, token }))}
                 src={assets.bin_icon}
                 className="w-4 mr-4 cursor-pointer"
               />
@@ -108,9 +128,7 @@ const Cart = () => {
           <div className="w-full text-end">
             <button
               onClick={handleCheckout}
-              className={`text-sm my-8 px-8 py-3 ${
-                isStockAvailable ? "bg-black text-white" : "bg-rose-400 cursor-not-allowed"
-              }`}
+              className={`text-sm my-8 px-8 py-3 ${isStockAvailable ? "bg-black text-white" : "bg-rose-400 cursor-not-allowed"}`}
               disabled={!isStockAvailable}
             >
               PROCEED TO CHECKOUT

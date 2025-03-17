@@ -12,6 +12,7 @@ import ForgetPassword from "./pages/ForgetPassword"; // Import Forget Password P
 import ResetPassword from "./pages/ResetPassword"; // Import Reset Password Page
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/scrollToTop";
 import SearchBar from "./components/SearchBar";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +23,7 @@ export default function App() {
       <ToastContainer />
       <Navbar />
       <SearchBar />
+      <ScrollToTop/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/collection" element={<Collection />} />

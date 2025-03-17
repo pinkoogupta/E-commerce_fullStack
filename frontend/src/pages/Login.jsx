@@ -1,17 +1,20 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ShopContext } from "../context/ShopContext";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { setToken } from "../redux/features/shopSlice"; // Import Redux action
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Login");
-  const { token, setToken, backendUrl } = useContext(ShopContext);
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const { token, backendUrl } = useSelector((state) => state.shop); // Use Redux state
+  console.log("Backend URL from config:", backendUrl);
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     try {
@@ -19,8 +22,6 @@ const Login = () => {
         const response = await axios.post(`${backendUrl}/api/v1/user/register`, { name, email, password });
 
         if (response.data.success) {
-          // setToken(response.data.token);
-          // localStorage.setItem("token", response.data.token);
           toast.success(response.data.message);
           navigate("/");
         } else {
@@ -30,7 +31,7 @@ const Login = () => {
         const response = await axios.post(`${backendUrl}/api/v1/user/login`, { email, password });
 
         if (response.data.success) {
-          setToken(response.data.token);
+          dispatch(setToken(response.data.token)); // Save token in Redux
           localStorage.setItem("token", response.data.token);
           toast.success(response.data.message);
           navigate("/");

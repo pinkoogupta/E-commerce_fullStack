@@ -1,15 +1,17 @@
-import React, { useContext, useState, useEffect } from "react";
-import { ShopContext } from "../context/ShopContext";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import Title from "../components/Title";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Orders = () => {
-  const { backendUrl, token, currency } = useContext(ShopContext);
+  const { backendUrl, token, currency } = useSelector((state) => state.shop); // Use Redux state
   const [orderData, setOrderData] = useState([]);
   const [reviews, setReviews] = useState({}); // Stores rating and comment per product
   const [submittingReview, setSubmittingReview] = useState({}); // Tracks submission status
 
+
+  // console.log("token is here",token);
   // Load Orders
   const loadOrderData = async () => {
     try {

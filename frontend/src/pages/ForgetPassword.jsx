@@ -1,13 +1,14 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
-  const { backendUrl,token } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const { backendUrl, token } = useSelector((state) => state.shop); // Redux instead of context
   const [loading, setLoading] = useState(false);
-
+  // console.log("Backend URL from config:", backendUrl);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

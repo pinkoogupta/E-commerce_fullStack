@@ -1,17 +1,23 @@
-import { useContext, useEffect, useState } from "react";
-import { ShopContext } from "../context/ShopContext";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { setSearch, setShowSearch, fetchProducts } from "../redux/features/shopSlice";  // Import Redux actions
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const dispatch = useDispatch();
+  const { products, search, showSearch } = useSelector((state) => state.shop);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortOption, setSortOption] = useState("relevent");
+
+  useEffect(() => {
+    dispatch(fetchProducts()); // Fetch products on component mount
+  }, [dispatch]);
 
   const toggleCategory = (e) => {
     const value = e.target.value;

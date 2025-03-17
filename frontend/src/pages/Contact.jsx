@@ -4,8 +4,6 @@ import { assets } from "../assets/assets";
 import NewsLetterBox from "../components/NewsLetterBox";
 
 
-
-
 const Contact = () => {
   return (
     <div>

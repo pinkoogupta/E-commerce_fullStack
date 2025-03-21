@@ -6,13 +6,13 @@ import axios from "axios";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
 import { assets } from "../assets/assets";
-import { setCartItems } from "../redux/features/shopSlice";  // Import Redux actions
+import { setCartItems } from "../redux/features/shopSlice";
 
 const PlaceOrder = () => {
   const [method, setMethod] = useState("cod");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, cartItems, products, deliveryFee,backendUrl } = useSelector((state) => state.shop);
+  const { token, cartItems, products, deliveryFee, backendUrl } = useSelector((state) => state.shop);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -28,88 +28,56 @@ const PlaceOrder = () => {
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
     try {
-      let orderItems = [];
-      let updateStockPromises = [];
-  
-      for (const items in cartItems) {
-        for (const item in cartItems[items]) {
-          if (cartItems[items][item] > 0) {
-            const itemInfo = structuredClone(products.find((product) => product._id === items));
-            if (itemInfo) {
-              itemInfo.size = item;
-              itemInfo.quantity = cartItems[items][item];
-              orderItems.push(itemInfo);
-  
-              // Prepare stock update data
-              const updatedStock = {
-                productId: itemInfo._id,
-                stock: {
-                  ...itemInfo.stock,
-                  [item]: Math.max(0, itemInfo.stock[item] - cartItems[items][item]),
-                },
-              };
-  
-              // Push API call promise to update stock
-              updateStockPromises.push(
-                axios.patch(`${backendUrl}/api/v1/product/updateProduct`, updatedStock, { 
-                  headers: { token } 
-                })
-              );
-            }
+      // Format cart items according to the new structure
+      const formattedCartItems = {};
+      for (const productId in cartItems) {
+        formattedCartItems[productId] = {};
+        for (const item in cartItems[productId]) {
+          if (cartItems[productId][item] > 0) {
+            const [size, color] = item.split('-');
+            formattedCartItems[productId][`${size}-${color}`] = cartItems[productId][item];
           }
         }
       }
-  
-      let orderData = {
+
+      const orderData = {
+        userId: token, // Assuming token contains user ID
         address: formData,
-        items: orderItems,
-        amount: getCartAmount() + deliveryFee,
+        paymentMethod: method.toUpperCase()
       };
-  
+
+      let response;
       switch (method) {
         case "cod":
-          const response = await axios.post(`${backendUrl}/api/v1/order/place`, orderData, { 
-            headers: { token } 
-          });
-          if (response.data.success) {
-            // Execute all stock update requests
-            await Promise.all(updateStockPromises);
-            
-            dispatch(setCartItems({})); // Clear cart items
-            navigate("/orders");
-            toast.success(response.data.message);
-          } else {
-            toast.error(response.data.message);
-          }
+          response = await axios.post(
+            `${backendUrl}/api/v1/order/place`,
+            orderData,
+            { headers: { token } }
+          );
+
           break;
-        
         default:
-          break;
+          throw new Error("Invalid payment method");
+      }
+
+      if (response.data.success) {
+        // dispatch(setCartItems({})); // Clear cart
+        console.log(response.data);
+        navigate("/orders");
+        toast.success("Order placed successfully!");
+      } else {
+        toast.error(response.data.message);
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || "Failed to place order");
     }
-  };
-
-  const getCartAmount = () => {
-    let totalAmount = 0;
-    for (const items in cartItems) {
-      const itemInfo = products.find((product) => product._id === items);
-      for (const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
-          totalAmount += itemInfo.price * cartItems[items][item];
-        }
-      }
-    }
-    return totalAmount;
   };
 
   return (
@@ -136,7 +104,6 @@ const PlaceOrder = () => {
       </div>
 
       {/* Right side */}
-
       <div className="mt-8">
         <div className="mt-8 min-w-80">
           <CartTotal />
@@ -146,11 +113,11 @@ const PlaceOrder = () => {
           <div className="flex gap-3 flex-col lg:flex-row">
             <div onClick={() => setMethod("stripe")} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === "stripe" ? "bg-green-400" : ""}`}></p>
-              <img src={assets.stripe_logo} className="h-5 mx-4" />
+              <img src={assets.stripe_logo} className="h-5 mx-4" alt="Stripe" />
             </div>
             <div onClick={() => setMethod("razorpay")} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === "razorpay" ? "bg-green-400" : ""}`}></p>
-              <img src={assets.razorpay_logo} className="h-5 mx-4" />
+              <img src={assets.razorpay_logo} className="h-5 mx-4" alt="Razorpay" />
             </div>
             <div onClick={() => setMethod("cod")} className="flex items-center gap-3 border p-2 px-3 cursor-pointer">
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === "cod" ? "bg-green-400" : ""}`}></p>

@@ -1,30 +1,16 @@
 import React from 'react';
-import { useSelector } from 'react-redux'; // Import useSelector
+import { useSelector } from 'react-redux';
+import { selectCartAmount } from '../redux/features/shopSlice';
 import Title from './Title';
 
 const CartTotal = () => {
-  // Access state from Redux
+  // Access state from Redux using selectors
   const currency = useSelector((state) => state.shop.currency);
   const deliveryFee = useSelector((state) => state.shop.deliveryFee);
-  const cartItems = useSelector((state) => state.shop.cartItems);
-  const products = useSelector((state) => state.shop.products);
+  const cartAmount = useSelector(selectCartAmount);
 
-  // Calculate cart amount
-  const getCartAmount = () => {
-    let totalAmount = 0;
-    for (const items in cartItems) {
-      const itemInfo = products.find((product) => product._id === items);
-      if (!itemInfo) continue; // Skip if product data is missing
-  
-      for (const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
-          totalAmount += itemInfo.price * cartItems[items][item];
-        }
-      }
-    }
-    return totalAmount;
-  };
-  
+  // Calculate total including delivery fee
+  const total = cartAmount === 0 ? 0 : cartAmount + deliveryFee;
 
   return (
     <div className="w-full">
@@ -35,21 +21,21 @@ const CartTotal = () => {
         <div className="flex justify-between">
           <p>Subtotal</p>
           <p>
-            {currency} {getCartAmount()}.00
+            {currency} {cartAmount.toFixed(2)}
           </p>
         </div>
         <hr />
         <div className="flex justify-between">
           <p>Shipping Fee</p>
           <p>
-            {currency} {deliveryFee}.00
+            {currency} {deliveryFee.toFixed(2)}
           </p>
         </div>
         <hr />
         <div className="flex justify-between">
           <b>Total</b>
           <b>
-            {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + deliveryFee}
+            {currency} {total.toFixed(2)}
           </b>
         </div>
       </div>

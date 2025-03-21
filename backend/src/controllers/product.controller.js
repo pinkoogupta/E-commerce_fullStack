@@ -1,78 +1,87 @@
 import { Product } from "../models/product.model.js";
-import { User } from "../models/user.model.js";
-import {v2 as cloudinary} from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import { apiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
-import crypto from "crypto";
-import sendEmail from "../utils/sendEmail.js";
-import bcrypt from "bcrypt";
 
 
+function* skuGenerator(start = 100000000) {
+  let counter = start;
+  while (true) {
+    yield counter.toString(36).toUpperCase().padStart(8, '0');
+    counter++;
+  }
+}
+
+// Create a generator instance
+const skuGen = skuGenerator();
+
+const generateSKU = (productName, size, color) => {
+  const shortName = productName.substring(0, 3).toUpperCase();
+  const shortSize = size.toUpperCase();
+  const shortColor = color.toUpperCase();
+
+  // Get the next unique ID from the generator
+  const uniqueID = skuGen.next().value;
+
+  return `${shortName}-${shortSize}-${shortColor}-${uniqueID}`;
+};
+
+// **Add a Product**
 const addProduct = async (req, res) => {
   try {
-    const { name, description, price, category, subCategory, sizes, BestSeller, stock } = req.body;
+    const { name, description, price, category, subCategory, BestSeller, stock } = req.body;
 
-    // Extract images from request
-    const image1 = req.files?.image1?.[0];
-    const image2 = req.files?.image2?.[0];
-    const image3 = req.files?.image3?.[0];
-    const image4 = req.files?.image4?.[0];
+    // Extract images
+    const images = ["image1", "image2", "image3", "image4"]
+      .map((key) => req.files?.[key]?.[0])
+      .filter(Boolean);
 
-    const images = [image1, image2, image3, image4].filter(Boolean);
-
-    let imageUrl = await Promise.all(
+    const imageUrl = await Promise.all(
       images.map(async (item) => {
         let result = await cloudinary.uploader.upload(item.path, { resource_type: "image" });
         return result.secure_url;
       })
     );
 
-    // Convert sizes and stock to proper format
-    const parsedSizes = JSON.parse(sizes); // Ensure sizes is an array
-    const parsedStock = JSON.parse(stock); // Ensure stock is an object
+    // Parse stock array
+    const parsedStock = JSON.parse(stock);
 
-    // Validate stock object (ensuring it has valid size keys) and calculate totalStock
-    let stockMap = {};
-    let totalStock = 0;
-    parsedSizes.forEach(size => {
-      const stockValue = parsedStock[size] ? Number(parsedStock[size]) : 0; // Default 0 if not provided
-      stockMap[size] = stockValue;
-      totalStock += stockValue;
-    });
+    // Transform stock data with SKU generation
+    let transformedStock = parsedStock.map((item) => ({
+      size: item.size.toUpperCase(),
+      color: item.color.toUpperCase(),
+      sku: item.sku || generateSKU(name, item.size, item.color),
+      quantity: Number(item.quantity),
+    }));
 
-    console.log({ name, description, price, category, subCategory, parsedSizes, BestSeller, stockMap, totalStock });
-    console.log(imageUrl);
+    // Calculate totalStock
+    const totalStock = transformedStock.reduce((sum, item) => sum + item.quantity, 0);
 
+    // Create product
     const product = new Product({
       name,
       description,
       price: Number(price),
       category,
       subCategory,
-      sizes: parsedSizes,
-      BestSeller: BestSeller === "true" ? true : false,
+      BestSeller: BestSeller === "true",
       image: imageUrl,
-      stock: stockMap,
-      totalStock, // Add total stock count
+      stock: transformedStock,
+      totalStock,
       date: Date.now(),
     });
 
     await product.save();
     res.status(201).json({ success: true, message: "Product added successfully", product });
-
   } catch (error) {
     console.error("Error adding product:", error);
     res.status(500).json({ success: false, message: "Error adding product", error: error.message });
   }
 };
 
-
+// ✏️ **Update a Product**
 const updateProduct = async (req, res) => {
   try {
-    console.log("Incoming Data:", req.body); // Debugging log
-
     const { productId, price, stock } = req.body;
 
     if (!productId) {
@@ -84,22 +93,28 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Ensure stock is correctly parsed
-    const parsedStock = stock ? JSON.parse(JSON.stringify(stock)) : product.stock;
-    console.log("Parsed Stock:", parsedStock); // Debugging log
+    // Ensure stock is an array
+    let updatedStock = Array.isArray(stock) ? stock : product.stock;
 
-    // Calculate totalStock
-    let totalStock = Object.values(parsedStock).reduce((sum, value) => sum + Number(value), 0);
+    // Ensure SKUs exist
+    updatedStock = updatedStock.map((item) => ({
+      size: item.size.toUpperCase(),
+      color: item.color.toUpperCase(),
+      sku: item.sku || generateSKU(product.name, item.size, item.color),
+      quantity: Number(item.quantity),
+    }));
 
-    // Update price, stock, and totalStock
+    // Calculate new totalStock
+    const totalStock = updatedStock.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Update product
     product.price = price !== undefined ? Number(price) : product.price;
-    product.stock = parsedStock || product.stock;
+    product.stock = updatedStock;
     product.totalStock = totalStock;
     product.date = Date.now();
 
     await product.save();
     res.status(200).json({ success: true, message: "Product updated successfully", product });
-
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(500).json({ success: false, message: "Error updating product", error: error.message });
@@ -108,73 +123,72 @@ const updateProduct = async (req, res) => {
 
 
 const removeProduct = async (req, res) => {
-    try {
-      const deletedProduct = await Product.findByIdAndDelete(req.body.id);
-      if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
-      res.status(200).json({success:true, message: "Product deleted successfully" });
-    } catch (error) {
-      res.status(500).json({success:false, message: "Error deleting product", error });
-    }
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(req.body.id);
+    if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
+    res.status(200).json({ success: true, message: "Product deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting product", error });
+  }
 };
 
+//  **Get Single Product**
 const singleProduct = async (req, res) => {
   try {
     const { productId } = req.body;
     const product = await Product.findById(productId);
-    res.json({success:true,product});
+    res.json({ success: true, product });
   } catch (error) {
     console.log(error);
-    res.status(500).json({success:false,error:error.message});
+    res.status(500).json({ success: false, error: error.message });
   }
-}
+};
 
+//  **List All Products**
 const listProducts = async (req, res) => {
   try {
-     const products=await Product.find({});
-     if (!products) return res.status(404).json({ message: "Products not found" });
-     res.status(200).json({success:true,products});
+    const products = await Product.find({});
+    if (!products) return res.status(404).json({ message: "Products not found" });
+    res.status(200).json({ success: true, products });
   } catch (error) {
-   console.log(error);
-   res.status(500).json({success:false,error:error.message});
+    console.log(error);
+    res.status(500).json({ success: false, error: error.message });
   }
+};
 
-}
-
+//  **Add Review to Product**
 const addReview = async (req, res) => {
   try {
     const { rating, comment } = req.body;
-    const { productId } = req.params; // Get productId from URL params
+    const { productId } = req.params;
 
-    // Validate request body
     if (!rating) {
       return res.status(400).json({ success: false, message: "Rating is required" });
     }
 
-    // Find the product
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Add the new review
     product.reviews.push({ rating: Number(rating), comment });
 
-    // Recalculate average rating
+    // Calculate new average rating
     const totalRatings = product.reviews.reduce((acc, review) => acc + review.rating, 0);
     product.averageRating = totalRatings / product.reviews.length;
 
-    // Save updated product
     await product.save();
-
     res.status(201).json({ success: true, message: "Review added successfully", product });
-
   } catch (error) {
     console.error("Error adding review:", error);
     res.status(500).json({ success: false, message: "Error adding review", error: error.message });
   }
 };
 
+//  **Export Controllers**
+export { addProduct, updateProduct, removeProduct, listProducts, singleProduct, addReview };
 
-  
 
-export {addProduct, updateProduct, removeProduct,listProducts,singleProduct,addReview };
+
+
+

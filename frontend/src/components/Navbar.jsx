@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux"; // Import useSelector and useDispatch
+import { useSelector, useDispatch } from "react-redux";
 import { assets } from "../assets/assets.js";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { setShowSearch, setToken, setCartItems } from "../redux/features/shopSlice";  // Import Redux actions
+import { setShowSearch, setToken, setCartItems } from "../redux/features/shopSlice";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
@@ -13,16 +13,14 @@ const Navbar = () => {
   const token = useSelector((state) => state.shop.token);
   const cartItems = useSelector((state) => state.shop.cartItems);
 
-  // Calculate cart count
+  // Calculate cart count based on the new cart structure
   const getCartCount = () => {
     let totalCount = 0;
-    for (const items in cartItems) {
-      for (const item in cartItems[items]) {
-        if (cartItems[items][item] > 0) {
-          totalCount += cartItems[items][item];
-        }
-      }
-    }
+    Object.values(cartItems).forEach(item => {
+      Object.values(item.variants || {}).forEach(variant => {
+        totalCount += variant.quantity;
+      });
+    });
     return totalCount;
   };
 
@@ -70,9 +68,10 @@ const Navbar = () => {
 
         <div className="flex items-center gap-6">
           <img
-            onClick={() => dispatch(setShowSearch(true))} // Dispatch setShowSearch action
+            onClick={() => dispatch(setShowSearch(true))}
             src={assets.search_icon}
             className="w-5 cursor-pointer"
+            alt="Search"
           />
 
           <div className="group relative">
@@ -80,6 +79,7 @@ const Navbar = () => {
               onClick={() => (token ? null : navigate("/login"))}
               src={assets.profile_icon}
               className="w-5 cursor-pointer"
+              alt="Profile"
             />
             {/* Drop Down */}
             {token && (
@@ -104,7 +104,7 @@ const Navbar = () => {
           </div>
 
           <Link to="/cart" className="relative">
-            <img src={assets.cart_icon} className="w-5 cursor-pointer" />
+            <img src={assets.cart_icon} className="w-5 cursor-pointer" alt="Cart" />
             <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
               {getCartCount()}
             </p>
@@ -114,6 +114,7 @@ const Navbar = () => {
             onClick={() => setVisible(true)}
             src={assets.menu_icon}
             className="w-5 cursor-pointer sm:hidden"
+            alt="Menu"
           />
         </div>
 
@@ -128,7 +129,7 @@ const Navbar = () => {
               onClick={() => setVisible(false)}
               className="flex items-center gap-4 p-3"
             >
-              <img src={assets.dropdown_icon} className="h-4 rotate-180" />
+              <img src={assets.dropdown_icon} className="h-4 rotate-180" alt="Back" />
               <p className="cursor-pointer">Back</p>
             </div>
             <NavLink

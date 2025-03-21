@@ -27,16 +27,28 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product subcategory is required"],
     },
-    sizes: {
-      type: [String],
-      required: [true, "Product sizes are required"],
-    },
-    stock: {
-      type: Map,
-      of: Number,
-      required: true,
-      default: {},
-    },
+    stock: [
+      {
+        size: {
+          type: String,
+          required: [true, "Size is required"],
+        },
+        color: {
+          type: String,
+          required: [true, "Color is required"],
+        },
+        sku: {
+          type: String,
+          required: true,
+          unique: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          default: 0,
+        },
+      },
+    ],
     totalStock: {
       type: Number,
       required: true,
@@ -55,10 +67,10 @@ const productSchema = new mongoose.Schema(
           type: Number,
           min: 1,
           max: 5,
-          required:true
+          required: true,
         },
         comment: {
-          type: String
+          type: String,
         },
       },
     ],
@@ -71,5 +83,20 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+
+// Middleware to generate SKU before saving
+productSchema.pre("save", function (next) {
+  this.totalStock = this.stock.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Generate SKU for each stock entry if not provided
+  this.stock.forEach((item) => {
+    if (!item.sku) {
+      item.sku = generateSKU(this.name, item.size, item.color);
+    }
+  });
+
+  next();
+});
 
 export const Product = mongoose.model("Product", productSchema);

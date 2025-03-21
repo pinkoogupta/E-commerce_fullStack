@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendUrl } from "../config/config";
@@ -17,14 +17,29 @@ const Add = ({ token }) => {
   const [subCategory, setSubCategory] = useState("Topwear");
   const [BestSeller, setBestSeller] = useState(false);
   const [sizes, setSizes] = useState([]);
-  const [stock, setStock] = useState({});
+  const [colors, setColors] = useState([]);
+  const [stock, setStock] = useState([]);
   const [totalStock, setTotalStock] = useState(0);
 
-  const handleStockChange = (size, value) => {
-    const updatedStock = { ...stock, [size]: Number(value) || 0 };
+  // Initialize stock when sizes or colors change
+  useEffect(() => {
+    const newStock = sizes.flatMap((size) =>
+      colors.map((color) => ({
+        size,
+        color,
+        quantity: 0,
+      }))
+    );
+    setStock(newStock);
+  }, [sizes, colors]);
+
+  const handleStockChange = (size, color, value) => {
+    const updatedStock = stock.map((item) =>
+      item.size === size && item.color === color ? { ...item, quantity: Number(value) || 0 } : item
+    );
     setStock(updatedStock);
 
-    const total = Object.values(updatedStock).reduce((acc, num) => acc + num, 0);
+    const total = updatedStock.reduce((acc, item) => acc + item.quantity, 0);
     setTotalStock(total);
   };
 
@@ -38,8 +53,7 @@ const Add = ({ token }) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
-      formData.append("BestSeller", JSON.stringify(BestSeller)); // Ensure it's sent as boolean
-      formData.append("sizes", JSON.stringify(sizes));
+      formData.append("BestSeller", JSON.stringify(BestSeller));
       formData.append("stock", JSON.stringify(stock));
       formData.append("totalStock", totalStock);
 
@@ -62,7 +76,8 @@ const Add = ({ token }) => {
         setImage4(null);
         setPrice("");
         setSizes([]);
-        setStock({});
+        setColors([]);
+        setStock([]);
         setTotalStock(0);
         setBestSeller(false);
       } else {
@@ -169,24 +184,47 @@ const Add = ({ token }) => {
         </div>
       </div>
 
+      {/* Select Colors */}
+      <div>
+        <p className="mb-2">Product Colors</p>
+        <div className="flex gap-3">
+          {["Red", "Blue", "Green", "Black", "White"].map((color) => (
+            <div
+              key={color}
+              onClick={() =>
+                setColors((prev) =>
+                  prev.includes(color) ? prev.filter((item) => item !== color) : [...prev, color]
+                )
+              }
+            >
+              <p className={`${colors.includes(color) ? "bg-pink-100" : "bg-slate-200"} px-3 py-1 cursor-pointer`}>
+                {color}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Stock Availability */}
-      {sizes.length > 0 && (
+      {sizes.length > 0 && colors.length > 0 && (
         <div className="w-full">
           <p className="mb-2">Stock Availability</p>
-          <div className="flex gap-3">
-            {sizes.map((size) => (
-              <div key={size} className="flex flex-col">
-                <label>{size}</label>
-                <input
-                  type="number"
-                  value={stock[size] || ""}
-                  onChange={(e) => handleStockChange(size, e.target.value)}
-                  className="w-full px-3 py-2 sm:w-[80px]"
-                  placeholder="Qty"
-                  min="0"
-                />
-              </div>
-            ))}
+          <div className="grid grid-cols-5 gap-3">
+            {sizes.map((size) =>
+              colors.map((color) => (
+                <div key={`${size}-${color}`} className="flex flex-col">
+                  <label>{`${size} - ${color}`}</label>
+                  <input
+                    type="number"
+                    value={stock.find((item) => item.size === size && item.color === color)?.quantity || ""}
+                    onChange={(e) => handleStockChange(size, color, e.target.value)}
+                    className="w-full px-3 py-2"
+                    placeholder="Qty"
+                    min="0"
+                  />
+                </div>
+              ))
+            )}
           </div>
           <p className="mt-2 font-semibold">Total Stock: {totalStock}</p>
         </div>

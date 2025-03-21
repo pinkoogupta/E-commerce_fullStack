@@ -9,25 +9,26 @@ const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
 
   // Find the product in the Redux store
   const product = products.find((item) => item._id === id);
-  const stock = product?.stock || {};
+  const stock = product?.stock || []; // Stock is now an array of objects
   const averageRating = product?.averageRating || 0;
   const reviewsCount = product?.reviews?.length || 0;
 
-  // Get all stock quantities
-  const allSizesStock = Object.values(stock);
-
-  // Check general stock availability (when no size filter is applied)
-  const isOutOfStock = allSizesStock.every((qty) => qty === 0);
-  const isFewLeft = allSizesStock.some((qty) => qty > 0 && qty < 10);
+  // Check if any stock item has a quantity less than 10
+  const isAnyStockFew = stock.some((item) => item.quantity > 0 && item.quantity < 10);
 
   // If size filter is applied, check stock only for selected sizes
-  let filteredStock =
-    selectedSizes.length > 0
-      ? selectedSizes.map((size) => stock[size] || 0)
-      : allSizesStock;
+  let filteredStock = selectedSizes.length > 0
+    ? stock.filter((item) => selectedSizes.includes(item.size))
+    : stock;
 
-  const isFilteredOutOfStock = filteredStock.every((qty) => qty === 0);
-  const isFilteredFewLeft = filteredStock.some((qty) => qty > 0 && qty < 10);
+  // Check if any filtered stock item has a quantity less than 10
+  const isFilteredStockFew = filteredStock.some((item) => item.quantity > 0 && item.quantity < 10);
+
+  // Check if the product is out of stock (total stock is 0)
+  const isOutOfStock = stock.every((item) => item.quantity === 0);
+
+  // Check if the filtered product is out of stock (filtered stock is 0)
+  const isFilteredOutOfStock = filteredStock.every((item) => item.quantity === 0);
 
   return (
     <Link to={`/product/${id}`} className='relative text-gray-700 cursor-pointer'>
@@ -48,7 +49,7 @@ const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
                   Out of Stock
                 </span>
               )}
-              {isFilteredFewLeft && !isFilteredOutOfStock && (
+              {isFilteredStockFew && !isFilteredOutOfStock && (
                 <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
                   Few Stocks Left!
                 </span>
@@ -61,7 +62,7 @@ const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
                   Out of Stock
                 </span>
               )}
-              {isFewLeft && !isOutOfStock && (
+              {isAnyStockFew && !isOutOfStock && (
                 <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
                   Few Stocks Left!
                 </span>

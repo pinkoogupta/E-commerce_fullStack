@@ -1,91 +1,532 @@
-import React, { useContext } from 'react';
-import { ShopContext } from '../context/ShopContext';
-import { Link } from 'react-router-dom';
-import { assets } from '../assets/assets';
 
-const ProductItem = ({ id, name, price, image, selectedSizes = [] }) => {
-  const { currency, products } = useContext(ShopContext);
+_id
+67cafa11583c7549bc88ecc6
+userId
+"67c7066148d1b06583017ea3"
 
-  // Find the product in the context
-  const product = products.find((item) => item._id === id);
-  const stock = product?.stock || {};
-  const averageRating = product?.averageRating || 0;
-  const reviewsCount = product?.reviews?.length || 0;
+items
+Array (2)
 
-  // Get all stock quantities
-  const allSizesStock = Object.values(stock);
+0
+Object
 
-  // Check general stock availability (when no size filter is applied)
-  const isOutOfStock = allSizesStock.every(qty => qty === 0);
-  const isFewLeft = allSizesStock.some(qty => qty > 0 && qty < 10);
+1
+Object
+amount
+2012
 
-  // If size filter is applied, check stock only for selected sizes
-  let filteredStock = selectedSizes.length > 0
-    ? selectedSizes.map(size => stock[size] || 0)
-    : allSizesStock;
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741355537659
+createdAt
+2025-03-07T13:52:17.669+00:00
+updatedAt
+2025-03-07T13:52:17.669+00:00
+__v
+0
 
-  const isFilteredOutOfStock = filteredStock.every(qty => qty === 0);
-  const isFilteredFewLeft = filteredStock.some(qty => qty > 0 && qty < 10);
 
-  return (
-    <Link to={`/product/${id}`} className='relative text-gray-700 cursor-pointer'>
-      {/* Image Container with Fixed Dimensions */}
-      <div className='overflow-hidden relative h-64 w-full'> {/* Fixed height and width */}
-        <img
-          className='w-full h-full object-cover hover:scale-110 ease-in-out duration-300'
-          src={image?.[0] || 'default-image-path.jpg'}
-          alt={name}
-        />
 
-        {/* Badge Display Logic */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {selectedSizes.length > 0 ? (
-            <>
-              {isFilteredOutOfStock && (
-                <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                  Out of Stock
-                </span>
-              )}
-              {isFilteredFewLeft && !isFilteredOutOfStock && (
-                <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
-                  Few Stocks Left!
-                </span>
-              )}
-            </>
-          ) : (
-            <>
-              {isOutOfStock && (
-                <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                  Out of Stock
-                </span>
-              )}
-              {isFewLeft && !isOutOfStock && (
-                <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
-                  Few Stocks Left!
-                </span>
-              )}
-            </>
-          )}
-        </div>
-      </div>
 
-      {/* Product Details */}
-      <p className='pt-3 pb-1 text-sm'>{name}</p>
-      <div className="flex justify-between items-center">
-        <p className='text-sm font-medium'>{currency}{price}</p>
-        {/* Rating Section */}
-        <div className="flex items-center gap-1">
-          {[...Array(Math.floor(averageRating || 0))].map((_, i) => (
-            <img key={i} src={assets.star_icon} className="w-3 h-3" alt="Star" />
-          ))}
-          {[...Array(5 - Math.floor(averageRating || 0))].map((_, i) => (
-            <img key={i} src={assets.star_dull_icon} className="w-3 h-3" alt="Dull Star" />
-          ))}
-          <p className="text-xs text-gray-500">({reviewsCount})</p>
-        </div>
-      </div>
-    </Link>
-  );
-};
 
-export default ProductItem;
+_id
+67cafad0e3d20a95fefa9b3e
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741355728079
+createdAt
+2025-03-07T13:55:28.087+00:00
+updatedAt
+2025-03-07T13:55:28.087+00:00
+__v
+0
+_id
+67cafb42c0eef43f5590705a
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741355842710
+createdAt
+2025-03-07T13:57:22.718+00:00
+updatedAt
+2025-03-07T13:57:22.718+00:00
+__v
+0
+_id
+67cafc6062d9dbaf8ba42b5b
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356128663
+createdAt
+2025-03-07T14:02:08.671+00:00
+updatedAt
+2025-03-07T14:02:08.671+00:00
+__v
+0
+_id
+67cafd34daa5ef4e3d96fe40
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356340198
+createdAt
+2025-03-07T14:05:40.203+00:00
+updatedAt
+2025-03-07T14:05:40.203+00:00
+__v
+0
+_id
+67cafd3bdaa5ef4e3d96fe43
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356347332
+createdAt
+2025-03-07T14:05:47.333+00:00
+updatedAt
+2025-03-07T14:05:47.333+00:00
+__v
+0
+_id
+67cafe7cdaa5ef4e3d96fe46
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356668461
+createdAt
+2025-03-07T14:11:08.461+00:00
+updatedAt
+2025-03-07T14:11:08.461+00:00
+__v
+0
+_id
+67cafeffdaa5ef4e3d96fe4a
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (2)
+amount
+2012
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356799450
+createdAt
+2025-03-07T14:13:19.451+00:00
+updatedAt
+2025-03-07T14:13:19.451+00:00
+__v
+0
+_id
+67caff59daa5ef4e3d96fe72
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+1011
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741356889298
+createdAt
+2025-03-07T14:14:49.300+00:00
+updatedAt
+2025-03-07T14:14:49.300+00:00
+__v
+0
+_id
+67caffd3daa5ef4e3d96fe7b
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+1011
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741357011579
+createdAt
+2025-03-07T14:16:51.580+00:00
+updatedAt
+2025-03-07T14:16:51.580+00:00
+__v
+0
+_id
+67cb017fdaa5ef4e3d96fe8a
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+1011
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741357439169
+createdAt
+2025-03-07T14:23:59.170+00:00
+updatedAt
+2025-03-07T14:23:59.170+00:00
+__v
+0
+_id
+67cb0268daa5ef4e3d96febd
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+460
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741357672170
+createdAt
+2025-03-07T14:27:52.170+00:00
+updatedAt
+2025-03-07T14:27:52.170+00:00
+__v
+0
+_id
+67cb02f4daa5ef4e3d96fef2
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+40
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741357812250
+createdAt
+2025-03-07T14:30:12.251+00:00
+updatedAt
+2025-03-07T14:30:12.251+00:00
+__v
+0
+_id
+67cb0378daa5ef4e3d96ff10
+userId
+"67c7066148d1b06583017ea3"
+
+items
+Array (1)
+amount
+1011
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741357944617
+createdAt
+2025-03-07T14:32:24.617+00:00
+updatedAt
+2025-03-07T14:32:24.617+00:00
+__v
+0
+_id
+67cb0511d53984453a1c2f4f
+userId
+"67c7ea92b16288d82df6c365"
+
+items
+Array (1)
+amount
+40
+
+address
+Object
+status
+"Delivered"
+paymentMethod
+"COD"
+payment
+false
+date
+1741358353523
+createdAt
+2025-03-07T14:39:13.530+00:00
+updatedAt
+2025-03-07T14:40:10.812+00:00
+__v
+0
+_id
+67cc3bcc6470e16a3026c17d
+userId
+"67c988d700e79b03e0075f4b"
+
+items
+Array (1)
+amount
+40
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741437900748
+createdAt
+2025-03-08T12:45:00.751+00:00
+updatedAt
+2025-03-08T12:45:00.751+00:00
+__v
+0
+_id
+67cc3c4e90250ebfbc9950fe
+userId
+"67c988d700e79b03e0075f4b"
+
+items
+Array (1)
+amount
+40
+
+address
+Object
+status
+"Order Placed"
+paymentMethod
+"COD"
+payment
+false
+date
+1741438030255
+createdAt
+2025-03-08T12:47:10.262+00:00
+updatedAt
+2025-03-08T12:47:10.262+00:00
+__v
+0
+_id
+67cc3c7990250ebfbc995111
+userId
+"67c988d700e79b03e0075f4b"
+
+items
+Array (1)
+amount
+160
+
+address
+Object
+status
+"Delivered"
+paymentMethod
+"COD"
+payment
+false
+date
+1741438073057
+createdAt
+2025-03-08T12:47:53.058+00:00
+updatedAt
+2025-03-08T17:46:59.743+00:00
+__v
+0
+_id
+67cc8ae3de13fc8d08a8c230
+userId
+"67c988d700e79b03e0075f4b"
+
+items
+Array (1)
+amount
+1010
+
+address
+Object
+status
+"Delivered"
+paymentMethod
+"COD"
+payment
+false
+date
+1741458147744
+createdAt
+2025-03-08T18:22:27.746+00:00
+updatedAt
+2025-03-08T18:22:55.131+00:00
+__v
+0
+_id
+67cc8dc51a40128e34aa5a0b
+userId
+"67c988d700e79b03e0075f4b"
+
+items
+Array (1)
+amount
+310
+
+address
+Object
+status
+"Delivered"
+paymentMethod
+"COD"
+payment
+false
+date
+1741458885401
+createdAt
+2025-03-08T18:34:45.406+00:00
+updatedAt
+2025-03-08T18:35:14.176+00:00
+__v
+0

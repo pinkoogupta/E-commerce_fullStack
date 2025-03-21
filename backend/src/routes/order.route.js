@@ -9,7 +9,7 @@ const orderRouter = express.Router();
 
 // Admin Features
 orderRouter.post('/list', AdminVerifyJWT, allOrders)
-orderRouter.post('/status', AdminVerifyJWT, updateStatus)
+orderRouter.patch('/status', AdminVerifyJWT, updateStatus)
 
 // Payment Features
 orderRouter.post('/place', verifyJWT, placeOrder)

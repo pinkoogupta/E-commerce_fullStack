@@ -168,7 +168,7 @@ const List = ({ token }) => {
                   <tr>
                     <th className="py-3 px-4 text-left">Image</th>
                     <th className="py-3 px-4 text-left">Product Name</th>
-                    <th className="py-3 px-4 text-left">SKU</th> {/* New SKU Column */}
+                    <th className="py-3 px-4 text-left">SKU</th>
                     <th className="py-3 px-4 text-left">Category</th>
                     <th className="py-3 px-4 text-left">Price</th>
                     <th className="py-3 px-4 text-left">Stock</th>
@@ -188,7 +188,7 @@ const List = ({ token }) => {
                         </div>
                       </td>
                       <td className="py-3 px-4 font-medium">{item.name}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{item.stock[0]?.sku || "N/A"}</td> {/* Display SKU */}
+                      <td className="py-3 px-4 text-sm text-gray-600">{item.stock[0]?.sku || "N/A"}</td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">
                           {item.category}

@@ -1,4 +1,4 @@
-import { Product } from "../models/product.model.js";
+import { Product } from "../models/productModels/product.model.js";
 import { v2 as cloudinary } from "cloudinary";
 import { apiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";

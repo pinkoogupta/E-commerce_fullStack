@@ -13,7 +13,8 @@ import {
   Layers, 
   Search,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Bookmark
 } from "lucide-react";
 
 const List = ({ token }) => {
@@ -81,6 +82,13 @@ const List = ({ token }) => {
   const handleStockChange = (index, value) => {
     const updatedStock = [...editData.stock];
     updatedStock[index].quantity = Number(value) || 0;
+    setEditData((prev) => ({ ...prev, stock: updatedStock }));
+  };
+
+  // Handle SKU change for a specific inventory item
+  const handleSkuChange = (index, value) => {
+    const updatedStock = [...editData.stock];
+    updatedStock[index].sku = value;
     setEditData((prev) => ({ ...prev, stock: updatedStock }));
   };
 
@@ -168,7 +176,6 @@ const List = ({ token }) => {
                   <tr>
                     <th className="py-3 px-4 text-left">Image</th>
                     <th className="py-3 px-4 text-left">Product Name</th>
-                    <th className="py-3 px-4 text-left">SKU</th>
                     <th className="py-3 px-4 text-left">Category</th>
                     <th className="py-3 px-4 text-left">Price</th>
                     <th className="py-3 px-4 text-left">Stock</th>
@@ -188,7 +195,6 @@ const List = ({ token }) => {
                         </div>
                       </td>
                       <td className="py-3 px-4 font-medium">{item.name}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600">{item.stock[0]?.sku || "N/A"}</td>
                       <td className="py-3 px-4">
                         <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">
                           {item.category}
@@ -304,20 +310,36 @@ const List = ({ token }) => {
                     <label className="text-sm font-medium">Inventory Management</label>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-96">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-96">
                     {editData.stock.map((stockItem, index) => (
-                      <div key={index} className="border rounded-lg p-3 hover:shadow-sm transition-shadow bg-gray-50">
-                        <div className="flex justify-between items-center mb-2">
+                      <div key={index} className="border rounded-lg p-4 hover:shadow-sm transition-shadow bg-gray-50">
+                        <div className="flex justify-between items-center mb-3">
                           <span className="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs font-medium">
                             Size: {stockItem.size}
                           </span>
-                          <span className="inline-block w-3 h-3 rounded-full" 
-                            style={{backgroundColor: stockItem.color}}
-                            title={`Color: ${stockItem.color}`}
-                          ></span>
-                           <p className="text-sm mb-1">Color: <span className="font-medium">{stockItem.color}</span></p>
+                          <div className="flex items-center gap-1">
+                            <span 
+                              className="inline-block w-3 h-3 rounded-full" 
+                              style={{backgroundColor: stockItem.color}}
+                            ></span>
+                            <span className="text-xs font-medium">{stockItem.color}</span>
+                          </div>
                         </div>
-                        <div className="mt-3">
+                        
+                        <div className="mb-3">
+                          <label className="text-xs text-gray-500 flex items-center mb-1">
+                            <Bookmark size={12} className="mr-1" /> SKU
+                          </label>
+                          <input
+                            type="text"
+                            value={stockItem.sku || ""}
+                            onChange={(e) => handleSkuChange(index, e.target.value)}
+                            className="w-full text-sm border rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="Enter SKU"
+                          />
+                        </div>
+                        
+                        <div>
                           <label className="text-xs text-gray-500 block mb-1">Quantity</label>
                           <div className="flex items-center">
                             <button 

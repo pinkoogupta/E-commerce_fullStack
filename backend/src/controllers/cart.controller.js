@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { Product } from "../models/product.model.js";
+import { Product } from "../models/productModels/product.model.js";
 import { verifyJWT } from "../middlewares/userAuth.middleware.js";
 
 // Add product to Cart

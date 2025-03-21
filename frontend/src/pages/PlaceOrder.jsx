@@ -60,15 +60,14 @@ const PlaceOrder = () => {
             orderData,
             { headers: { token } }
           );
-
           break;
+        
         default:
           throw new Error("Invalid payment method");
       }
 
       if (response.data.success) {
-        // dispatch(setCartItems({})); // Clear cart
-        console.log(response.data);
+        dispatch(setCartItems({})); // Clear cart
         navigate("/orders");
         toast.success("Order placed successfully!");
       } else {

@@ -1,8 +1,8 @@
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
-import { Product } from "../models/product.model.js";
+import { Product } from "../models/productModels/product.model.js";
 
-
+// Place Order
 const placeOrder = async (req, res) => {
     try {
         const { userId, address, paymentMethod = "COD" } = req.body;
@@ -38,7 +38,9 @@ const placeOrder = async (req, res) => {
         for (const [productId, variants] of Object.entries(cartData)) {
             const product = await Product.findById(productId);
             if (!product) {
-                return res.status(404).json({   success: false,message: `Product not found: ${productId}`
+                return res.status(404).json({
+                    success: false,
+                    message: `Product not found: ${productId}`
                 });
             }
 
@@ -51,8 +53,10 @@ const placeOrder = async (req, res) => {
                 );
 
                 if (!stockItem || stockItem.quantity < quantity) {
-                    return res.status(400).json({   success: false,
-                        message: `Insufficient stock for ${product.name} (${size}, ${color})`});
+                    return res.status(400).json({
+                        success: false,
+                        message: `Insufficient stock for ${product.name} (${size}, ${color})`
+                    });
                 }
 
                 // Update stock quantity

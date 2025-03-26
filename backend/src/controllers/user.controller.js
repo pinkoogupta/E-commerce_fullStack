@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 
 const generateTheToken = async (userId) => {
     try {
-      const user = await User.findById(userId);
+      const user = await User.findById(uzserId);
       const token = user.generateToken();
       user.token = token;
       await user.save({ validateBeforeSave: false });
